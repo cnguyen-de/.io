@@ -1,15 +1,15 @@
 module.exports = {
   semi: true,
-  singleQuote: true,
   useTabs: false,
-  trailingComma: "none",
+  trailingComma: 'none',
   printWidth: 120,
-  plugins: ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
+  bracketSameLine: true,
+  plugins: ['prettier-plugin-astro', 'prettier-plugin-tailwindcss'],
   overrides: [
     {
-      files: "*.astro",
+      files: '*.astro',
       options: {
-        parser: "astro"
+        parser: 'astro'
       }
     }
   ]

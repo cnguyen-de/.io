@@ -1,20 +1,27 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Link from '../components/Link.astro';
 ---
 
 <Layout title="May Solutions">
-  <main class="mx-auto flex min-h-dvh max-w-4xl flex-col items-center bg-white">
-    <h1 class="mt-16 py-4 text-6xl font-bold tracking-wider text-gray-800">May Solutions</h1>
-    <h3 class="text-2xl text-gray-600">We may have solutions for you.</h3>
+  <main class="mx-auto flex min-h-dvh max-w-4xl flex-col items-center bg-transparent">
+    <div
+      class="fixed inset-0 -z-10 mx-auto h-screen w-screen bg-[url('/hero.webp')] bg-cover bg-center bg-no-repeat blur-3xl"
+    >
+    </div>
+    <h1 class="text-primary mt-24 py-4 text-center text-5xl font-bold md:text-7xl">May Solutions</h1>
+    <h2 class="text-primary mt-4 text-base uppercase tracking-tight text-gray-400 md:text-xl">
+      We may have solutions for you.
+    </h2>
     <div class="flex-grow"></div>
     <div class="mx-auto">
-      <p>May Solutions UG (haftungsbeschränkt)</p>
-      <p>Ella-Bergmann-Michel-Str. 3, 60438, Frankfurt am Main</p>
-      <p>Geschäftsführer: Minh Chi Nguyen</p>
-      <a class="text-blue-500 underline decoration-dotted hover:text-blue-700" href="mailto:contact@may-solutions.io"
-        >contact@may-solutions.io</a
-      >
-      <p>Registergericht Amtsgericht Frankfurt am Main HRB 135446</p>
+      <Link href="/impressum">Imprint</Link>
     </div>
   </main>
 </Layout>
+
+<style>
+  .text-primary {
+    @apply bg-gradient-to-t from-slate-400 to-white bg-clip-text text-transparent;
+  }
+</style>
