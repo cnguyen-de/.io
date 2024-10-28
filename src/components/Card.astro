@@ -12,7 +12,7 @@ const { center, title, body } = Astro.props;
   class="animate w-full rounded-xl bg-gradient-to-br from-gray-400 from-5% via-gray-600 via-20% to-gray-800 to-90% p-px text-white shadow-xl hover:cursor-pointer md:min-w-[360px]">
   <div class="flex h-full flex-col rounded-[calc(0.75rem_-_1px)] bg-gray-950/90 p-8">
     {title && <h2 class="text-primary pb-4 text-xl tracking-wide md:text-2xl">{title}</h2>}
-    <p class={"mb-auto font-thin text-gray-400 " + (center ? "text-center" : "")}>
+    <p class={"mb-auto font-normal md:font-thin text-gray-400 " + (center ? "text-center" : "")}>
       {body}
     </p>
   </div>
