@@ -2,60 +2,82 @@
 interface Props {
   title: string;
   body: string;
-  href: string;
+  center?: boolean;
 }
 
-const { href, title, body } = Astro.props;
+const { center, title, body } = Astro.props;
 ---
 
-<li class="link-card">
-  <a href={href}>
-    <h2>
-      {title}
-      <span>&rarr;</span>
-    </h2>
-    <p>
+<div
+  class="animate w-full rounded-xl bg-gradient-to-br from-gray-400 from-5% via-gray-600 via-20% to-gray-800 to-90% p-px text-white shadow-xl hover:cursor-pointer md:min-w-[360px]">
+  <div class="flex h-full flex-col rounded-[calc(0.75rem_-_1px)] bg-gray-950/90 p-8">
+    {title && <h2 class="text-primary pb-4 text-xl tracking-wide md:text-2xl">{title}</h2>}
+    <p class={"mb-auto font-thin text-gray-400 " + (center ? "text-center" : "")}>
       {body}
     </p>
-  </a>
-</li>
-<style>
-  .link-card {
-    list-style: none;
-    display: flex;
-    padding: 1px;
-    background-color: #23262d;
-    background-image: none;
-    background-size: 400%;
-    border-radius: 7px;
-    background-position: 100%;
-    transition: background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  </div>
+</div>
+
+<style is:global>
+  .animate:hover {
+    animation: Gradient 0.5s ease-in forwards;
   }
-  .link-card > a {
-    width: 100%;
-    text-decoration: none;
-    line-height: 1.4;
-    padding: calc(1.5rem - 1px);
-    border-radius: 8px;
-    color: white;
-    background-color: #23262d;
-    opacity: 0.8;
-  }
-  h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  p {
-    margin-top: 0.5rem;
-    margin-bottom: 0;
-  }
-  .link-card:is(:hover, :focus-within) {
-    background-position: 0;
-    background-image: var(--accent-gradient);
-  }
-  .link-card:is(:hover, :focus-within) h2 {
-    color: rgb(var(--accent-light));
+  @keyframes Gradient {
+    0% {
+      --tw-gradient-from-position: 0;
+      --tw-gradient-via-position: 20%;
+    }
+    2.5% {
+      --tw-gradient-from-position: 2.5%;
+      --tw-gradient-via-position: 22.5%;
+    }
+    5% {
+      --tw-gradient-from-position: 5%;
+      --tw-gradient-via-position: 25%;
+    }
+    7.5% {
+      --tw-gradient-from-position: 7.5%;
+      --tw-gradient-via-position: 27.5%;
+    }
+    10% {
+      --tw-gradient-from-position: 10%;
+      --tw-gradient-via-position: 30%;
+    }
+    12.5% {
+      --tw-gradient-from-position: 12.5%;
+      --tw-gradient-via-position: 32.5%;
+    }
+    15% {
+      --tw-gradient-from-position: 15%;
+      --tw-gradient-via-position: 35%;
+    }
+    17.5% {
+      --tw-gradient-from-position: 17.5%;
+      --tw-gradient-via-position: 37.5%;
+    }
+    20% {
+      --tw-gradient-from-position: 20%;
+      --tw-gradient-via-position: 40%;
+    }
+    22.5% {
+      --tw-gradient-from-position: 22.5%;
+      --tw-gradient-via-position: 42.5%;
+    }
+    25% {
+      --tw-gradient-from-position: 25%;
+      --tw-gradient-via-position: 45%;
+    }
+    27.5% {
+      --tw-gradient-from-position: 27.5%;
+      --tw-gradient-via-position: 47.5%;
+    }
+    30% {
+      --tw-gradient-from-position: 30%;
+      --tw-gradient-via-position: 50%;
+    }
+    100% {
+      --tw-gradient-from-position: 30%;
+      --tw-gradient-via-position: 50%;
+    }
   }
 </style>
