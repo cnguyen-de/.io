@@ -82,7 +82,7 @@ function handleTouchMove(e: TouchEvent) {
 </script>
 
 <template>
-  <div class="absolute top-0 -left-10 md:left-0 mx-auto aspect-[1/1] w-full max-w-[600px] top-64">
+  <div class="absolute md:top-0 -left-10 md:left-0 mx-auto aspect-[1/1] w-full max-w-[600px]">
     <canvas
       ref="canvasRef"
       class="mx-auto size-[450px] md:size-[500px] cursor-grab opacity-0 transition-opacity duration-500 [contain:layout_paint_size]"
