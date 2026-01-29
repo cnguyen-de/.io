@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import createGlobe from 'cobe'
-import { onMounted, ref } from 'vue'
-import { useSpring } from 'vue-use-spring'
+import createGlobe from "cobe";
+import { onMounted, ref } from "vue";
+import { useSpring } from "vue-use-spring";
 
-const canvasRef = ref<HTMLCanvasElement | null>(null)
-const pointerInteracting = ref<number | null>(null)
-const pointerInteractionMovement = ref(0)
-const phi = ref(0)
+const canvasRef = ref<HTMLCanvasElement | null>(null);
+const pointerInteracting = ref<number | null>(null);
+const pointerInteractionMovement = ref(0);
+const phi = ref(4.3);
 
 const api = useSpring(
   { r: 0 },
@@ -14,17 +14,17 @@ const api = useSpring(
     mass: 1,
     tension: 280,
     friction: 40,
-    precision: 0.001,
-  },
-)
+    precision: 0.001
+  }
+);
 
 onMounted(() => {
   createGlobe(canvasRef.value!, {
     devicePixelRatio: 2,
     width: 1000,
     height: 1000,
-    phi: 0,
-    theta: 0.9,
+    phi: 4.3,
+    theta: 0.8,
     dark: 1,
     diffuse: 1.2,
     mapSamples: 16000,
@@ -34,63 +34,57 @@ onMounted(() => {
     glowColor: [1, 1, 1],
     markers: [
       // longitude latitude
-      { location: [50, 8.7], size: 0.1 },
+      { location: [50, 8.7], size: 0.1 }
     ],
     onRender: (state) => {
-      // This prevents rotation while dragging
-      if (!pointerInteracting.value) {
-        // Called on every animation frame.
-        // `state` will be an empty object, return updated params.
-        phi.value += 0.001
-      }
-      state.phi = phi.value + api.r + 500
-    },
-  })
-  canvasRef.value!.style.opacity = '1'
-})
+      // Rotation disabled - only update on user interaction
+      state.phi = phi.value + api.r;
+    }
+  });
+  canvasRef.value!.style.opacity = "1";
+});
 
 function handlePointerDown(e: PointerEvent) {
-  pointerInteracting.value = e.clientX - pointerInteractionMovement.value
-  canvasRef.value!.style.cursor = 'grabbing'
+  pointerInteracting.value = e.clientX - pointerInteractionMovement.value;
+  canvasRef.value!.style.cursor = "grabbing";
 }
 
 function handlePointerUp(_: PointerEvent) {
-  pointerInteracting.value = null
-  canvasRef.value!.style.cursor = 'grab'
+  pointerInteracting.value = null;
+  canvasRef.value!.style.cursor = "grab";
 }
 
 function handlePointerOut(_: PointerEvent) {
-  pointerInteracting.value = null
-  canvasRef.value!.style.cursor = 'grab'
+  pointerInteracting.value = null;
+  canvasRef.value!.style.cursor = "grab";
 }
 
 function handleMouseMove(e: MouseEvent) {
   if (pointerInteracting.value !== null) {
-    const delta = e.clientX - pointerInteracting.value
-    pointerInteractionMovement.value = delta
-    api.r = delta / 200
+    const delta = e.clientX - pointerInteracting.value;
+    pointerInteractionMovement.value = delta;
+    api.r = delta / 200;
   }
 }
 
 function handleTouchMove(e: TouchEvent) {
   if (pointerInteracting.value !== null && e.touches[0]) {
-    const delta = e.touches[0].clientX - pointerInteracting.value
-    pointerInteractionMovement.value = delta
-    api.r = delta / 100
+    const delta = e.touches[0].clientX - pointerInteracting.value;
+    pointerInteractionMovement.value = delta;
+    api.r = delta / 100;
   }
 }
 </script>
 
 <template>
-  <div class="absolute md:top-0 -left-10 md:left-0 mx-auto aspect-[1/1] w-full max-w-[600px]">
+  <div class="absolute -left-10 mx-auto aspect-[1/1] w-full max-w-[600px] md:left-0 md:top-0">
     <canvas
       ref="canvasRef"
-      class="mx-auto size-[450px] md:size-[500px] cursor-grab opacity-0 transition-opacity duration-500 [contain:layout_paint_size]"
+      class="mx-auto size-[450px] cursor-grab opacity-0 transition-opacity duration-500 [contain:layout_paint_size] md:size-[500px]"
       @pointerdown="handlePointerDown"
       @pointerup="handlePointerUp"
       @pointerout="handlePointerOut"
       @mousemove="handleMouseMove"
-      @touchmove="handleTouchMove"
-    />
+      @touchmove="handleTouchMove" />
   </div>
 </template>

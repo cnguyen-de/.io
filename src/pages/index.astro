@@ -4,34 +4,43 @@ import Link from "../components/Link.astro";
 import Card from "../components/Card.astro";
 import Globe from "../components/Globe.vue";
 import Technologies from "../components/Technologies.vue";
+import Particles from "../components/Particles.vue";
 ---
 
 <Layout title="May Solutions">
-  <main class="relative mx-auto flex min-h-dvh flex-col items-center bg-transparent py-4 md:p-0">
-    <section class="flex h-[75vh] flex-col items-center pt-48">
-      <div class="fixed inset-0 -z-10 mx-auto h-screen bg-[url('/hero.webp')] bg-cover bg-center bg-no-repeat blur-3xl">
-      </div>
-
+  <main class="relative mx-auto flex min-h-dvh max-w-7xl flex-col items-center bg-transparent py-4 md:p-0">
+    <div class="fixed inset-0 -z-10 mx-auto h-screen bg-[url('/hero.webp')] bg-cover bg-center bg-no-repeat blur-3xl">
+    </div>
+    <section id="hero" class="relative flex h-[100vh] w-full flex-col items-center justify-center">
       <h1
-        class="bg-gradient-to-t from-slate-900/50 to-white bg-clip-text py-4 text-center text-6xl font-semibold tracking-wider text-transparent drop-shadow-lg md:text-7xl">
+        class="bg-gradient-to-t from-slate-300/50 to-white bg-clip-text py-4 text-center text-5xl font-bold text-transparent drop-shadow-lg md:text-7xl lg:text-9xl">
         May Solutions
       </h1>
       <h2
-        class="text-primary z-10 mt-4 text-center text-xl font-normal uppercase tracking-wide text-gray-400 md:text-2xl md:font-thin">
+        class="text-primary z-10 mt-4 text-center text-xl font-normal uppercase tracking-tight text-gray-400 md:text-2xl md:font-thin lg:text-3xl">
         EXCELLENCE. EXPERTISE. EFFICIENCY.
       </h2>
+      <Particles
+        class="absolute inset-0"
+        :quantity="100"
+        :ease="100"
+        color="#FFF"
+        :staticity="10"
+        :refresh="true"
+        client:only
+      />
     </section>
 
     <section class="relative flex flex-col items-center bg-gray-950 pb-[500px] xl:pb-40">
       <div class="grid grid-cols-1 gap-10 pt-14 md:grid-cols-2">
         <div class="relative">
-          <Globe class="z-0 mx-auto pt-72 md:pt-0" client:only   />
+          <Globe class="z-0 mx-auto pt-72 md:pt-0" client:only />
         </div>
-        <div class="z-10 flex flex-col gap-4 p-4 text-xl text-gray-400 md:p-20">
+        <div class="z-10 flex flex-col gap-4 p-4 text-xl text-gray-300 md:p-20">
           <h3 class="text-primary pt-0 text-3xl font-semibold md:pt-10 md:text-5xl">
-            Located in the central of Europe - Frankfurt
+            Centrally Located in Frankfurt, Europe
           </h3>
-          <p class="text-left text-lg">
+          <p class="text-left text-lg font-thin">
             Our headquarters are strategically situated in Frankfurt, a central hub of business and culture in Europe,
             ensuring easy access and connectivity for our clients and partners.
           </p>
@@ -45,7 +54,7 @@ import Technologies from "../components/Technologies.vue";
       <h3 class="text-primary z-10 px-4 py-10 text-center text-3xl font-semibold tracking-tighter md:text-5xl">
         OUR WORKS HAVE BEEN TRUSTED BY
       </h3>
-      <p class="px-4 text-left text-lg text-gray-400 md:text-center xl:px-40">
+      <p class="px-4 text-left text-lg font-thin text-gray-300 md:text-center xl:px-40">
         We are proud to have helped implement solutions for leading companies across various sectors. Our commitment to
         excellence and customer satisfaction has made us a valuable partner to our clients.
       </p>
@@ -72,11 +81,14 @@ import Technologies from "../components/Technologies.vue";
       </div>
     </section>
 
-    <section class="relative px-4 py-40 md:px-40">
-      <h3
-        class="text-primary z-10 px-4 py-10 pb-[250px] text-center text-3xl font-semibold tracking-tighter md:text-5xl">
+    <section class="relative px-4 py-40">
+      <h3 class="text-primary z-10 px-4 py-10 text-center text-3xl font-semibold tracking-tighter md:text-5xl">
         OUR SERVICES
       </h3>
+      <p class="px-4 text-left text-lg font-thin text-gray-300 md:text-center xl:px-40">
+        We work with a broad range of modern technologies to build solutions that meet your specific requirements. Our
+        technical expertise allows us to deliver reliable, maintainable software that supports your business objectives.
+      </p>
       <Technologies client:only />
       <div class="grid grid-cols-1 gap-10 pt-14 xl:grid-cols-3">
         <Card
@@ -95,7 +107,7 @@ import Technologies from "../components/Technologies.vue";
       </div>
     </section>
 
-    <section class="flex flex-col items-center pb-40 pt-20">
+    <section class="flex flex-col items-center pb-48 pt-20">
       <h3 class="text-primary z-10 px-4 py-4 text-center text-3xl font-bold tracking-tighter md:text-5xl">
         CONTACT US
       </h3>
