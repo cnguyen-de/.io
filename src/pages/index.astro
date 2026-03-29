@@ -7,7 +7,10 @@ import Technologies from "../components/Technologies.vue";
 import Particles from "../components/Particles.vue";
 ---
 
-<Layout title="May Solutions">
+<Layout
+  title="May Solutions – Softwareentwicklung & IT-Beratung Frankfurt"
+  description="May Solutions ist Ihr Partner für individuelle Softwareentwicklung und IT-Beratung in Frankfurt am Main. Webentwicklung, Digitalisierungsberatung und IT-Consulting für den Mittelstand."
+>
   <main class="relative mx-auto flex min-h-dvh max-w-7xl flex-col items-center bg-transparent py-4 md:p-0">
     <div class="fixed inset-0 -z-10 mx-auto h-screen bg-[url('/hero.webp')] bg-cover bg-center bg-no-repeat blur-3xl">
     </div>
@@ -37,12 +40,13 @@ import Particles from "../components/Particles.vue";
           <Globe class="z-0 mx-auto pt-72 md:pt-0" client:only />
         </div>
         <div class="z-10 flex flex-col gap-4 p-4 text-xl text-gray-300 md:p-20">
-          <h3 class="text-primary pt-0 text-3xl font-semibold md:pt-10 md:text-5xl">
-            Centrally Located in Frankfurt, Europe
-          </h3>
+          <h2 class="text-primary pt-0 text-3xl font-semibold md:pt-10 md:text-5xl">
+            Ihr IT-Partner in Frankfurt am Main
+          </h2>
           <p class="text-left text-lg font-thin">
-            Our headquarters are strategically situated in Frankfurt, a central hub of business and culture in Europe,
-            ensuring easy access and connectivity for our clients and partners.
+            Unser Hauptsitz befindet sich in Frankfurt am Main – einem der bedeutendsten Wirtschaftsstandorte Europas.
+            Diese strategische Lage ermöglicht uns eine enge Zusammenarbeit mit Unternehmen aus dem Rhein-Main-Gebiet,
+            dem deutschen Mittelstand sowie internationalen Partnern.
           </p>
         </div>
       </div>
@@ -51,36 +55,40 @@ import Particles from "../components/Particles.vue";
     <section
       class="relative w-full bg-gradient-to-br from-gray-950/20 from-20% via-gray-900 via-50% to-gray-950/30 to-80% py-40">
       <div class="bg-grid absolute inset-0"></div>
-      <h3 class="text-primary z-10 px-4 py-10 text-center text-3xl font-semibold tracking-tighter md:text-5xl">
+      <h2 class="text-primary z-10 px-4 py-10 text-center text-3xl font-semibold tracking-tighter md:text-5xl">
         OUR WORKS HAVE BEEN TRUSTED BY
-      </h3>
+      </h2>
       <p class="px-4 text-left text-lg font-thin text-gray-300 md:text-center xl:px-40">
-        We are proud to have helped implement solutions for leading companies across various sectors. Our commitment to
-        excellence and customer satisfaction has made us a valuable partner to our clients.
+        Wir sind stolz darauf, Lösungen für führende Unternehmen in verschiedenen Branchen implementiert zu haben.
+        Unser Engagement für Qualität und Kundenzufriedenheit macht uns zu einem zuverlässigen Partner.
       </p>
       <div
         class="mx-auto grid w-full max-w-6xl grid-cols-1 place-items-center gap-8 px-4 py-14 text-gray-300 md:grid-cols-2 xl:grid-cols-4">
         <a
           href="https://www.soka-bau.de/"
           target="_blank"
+          rel="noopener noreferrer"
           class="z-10 w-full text-2xl hover:text-gray-200 md:text-3xl lg:text-4xl">
           <Card title="" body="SOKA-BAU" center />
         </a>
         <a
           href="https://www.mercedes-benz.io/"
           target="_blank"
+          rel="noopener noreferrer"
           class="z-10 w-full text-2xl hover:text-gray-200 md:text-3xl lg:text-4xl">
           <Card title="" body="Mercedes-Benz.io" center nowrap />
         </a>
         <a
           href="https://www.lbbw.de"
           target="_blank"
+          rel="noopener noreferrer"
           class="z-10 w-full text-2xl hover:text-gray-200 md:text-3xl lg:text-4xl">
           <Card title="" body="LBBW" center={true} />
         </a>
         <a
           href="https://gitlab.com/"
           target="_blank"
+          rel="noopener noreferrer"
           class="z-10 w-full text-2xl hover:text-gray-200 md:text-3xl lg:text-4xl">
           <Card title="" body="GitLab" center />
         </a>
@@ -88,35 +96,39 @@ import Particles from "../components/Particles.vue";
     </section>
 
     <section class="relative px-4 py-40">
-      <h3 class="text-primary z-10 px-4 py-10 text-center text-3xl font-semibold tracking-tighter md:text-5xl">
-        OUR SERVICES
-      </h3>
+      <h2 class="text-primary z-10 px-4 py-10 text-center text-3xl font-semibold tracking-tighter md:text-5xl">
+        UNSERE LEISTUNGEN
+      </h2>
       <p class="px-4 text-left text-lg font-thin text-gray-300 md:text-center xl:px-40">
-        We work with a broad range of modern technologies to build solutions that meet your specific requirements. Our
-        technical expertise allows us to deliver reliable, maintainable software that supports your business objectives.
+        Wir entwickeln individuelle Softwarelösungen und bieten IT-Beratung mit modernen Technologien.
+        Als Frankfurter IT-Beratungsunternehmen unterstützen wir Mittelstandsunternehmen bei der Digitalisierung
+        und helfen Ihnen, Ihre Geschäftsziele zu erreichen.
       </p>
       <Technologies client:only />
       <div class="grid grid-cols-1 gap-10 pt-14 xl:grid-cols-3">
         <Card
-          title="WEB DEVELOPMENT"
-          body="We offer tailored solutions using the latest technologies and best practices. We deliver high-quality, scalable, and secure web solutions to help drive your business forward."
+          title="WEBENTWICKLUNG"
+          body="Wir entwickeln maßgeschneiderte Weblösungen mit modernsten Technologien. Von der Konzeption bis zur Umsetzung liefern wir skalierbare, sichere und performante Webapplikationen für Ihr Unternehmen."
         />
 
         <Card
-          title="CONSULTING"
-          body="We provide expert guidance to help you navigate the complexities of technology and achieve your business objectives. We offer strategic advice, planning and implementation support to ensure your project is optimized for success."
+          title="IT-BERATUNG"
+          body="Als erfahrene IT-Berater in Frankfurt unterstützen wir Sie bei der digitalen Transformation Ihres Unternehmens. Wir bieten strategische Beratung, Planung und Umsetzungsbegleitung für Ihren Projekterfolg."
         />
         <Card
-          title="AGILITY"
-          body="Our agile development approach ensures fast and flexible delivery of high-quality software solutions. We adapt to your needs and changes quickly, ensuring your project stays on track and meets your business goals."
+          title="AGILITÄT"
+          body="Unser agiler Entwicklungsansatz ermöglicht eine schnelle und flexible Lieferung hochwertiger Softwarelösungen. Wir passen uns Ihren Anforderungen an und halten Ihr Projekt auf Kurs."
         />
       </div>
     </section>
 
     <section class="flex flex-col items-center pb-48 pt-20">
-      <h3 class="text-primary z-10 px-4 py-4 text-center text-3xl font-bold tracking-tighter md:text-5xl">
-        CONTACT US
-      </h3>
+      <h2 class="text-primary z-10 px-4 py-4 text-center text-3xl font-bold tracking-tighter md:text-5xl">
+        KONTAKT
+      </h2>
+      <p class="pb-6 text-center text-lg font-thin text-gray-400">
+        Bereit für Ihr nächstes IT-Projekt? Kontaktieren Sie uns – wir freuen uns auf Ihre Anfrage.
+      </p>
       <Link href="mailto:contact@may-solutions.io">
         <span class="text-lg text-gray-400 underline hover:text-sky-500">📨 contact@may-solutions.io</span>
       </Link>
@@ -125,7 +137,7 @@ import Particles from "../components/Particles.vue";
 
   <footer
     class="border-px relative bottom-0 left-0 mx-auto flex justify-center border-t border-solid border-gray-500/20 p-2">
-    <Link href="/impressum">Imprint</Link>
+    <Link href="/impressum">Impressum</Link>
   </footer>
 </Layout>
 
