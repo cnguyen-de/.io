@@ -14,7 +14,6 @@ import { clamp, damp, easeInCubic, easeInOutCubic, lerp, mulberry32, smoothstep 
 interface Shot {
   pos: THREE.Vector3;
   target: THREE.Vector3;
-  labels: number;
   tech: number;
   arcs: number;
   drift: number;
@@ -125,7 +124,7 @@ export class Experience {
   // smoothed camera state for the city
   private camPos = new THREE.Vector3();
   private camTarget = new THREE.Vector3();
-  private params = { labels: 0, tech: 0, arcs: 0, focus: 0 };
+  private params = { tech: 0, arcs: 0, focus: 0 };
   private focusPos = new THREE.Vector3();
 
   private labelEls: HTMLElement[] = [];
@@ -157,15 +156,15 @@ export class Experience {
     const m = opts.mobile;
     this.shots = [
       // hero: bird's-eye view over the banking district, the Main in the foreground
-      { pos: m ? v(650, 1500, 2200) : v(750, 950, 1350), target: m ? v(0, 0, -250) : v(-80, 0, -200), labels: 0, tech: 0, arcs: 0, drift: 1 },
+      { pos: m ? v(650, 1500, 2200) : v(750, 950, 1350), target: m ? v(0, 0, -250) : v(-80, 0, -200), tech: 0, arcs: 0, drift: 1 },
       // location: aerial view with the HQ beacon to the north
-      { pos: m ? v(900, 2300, 2600) : v(3400, 2500, 1500), target: m ? v(500, 0, -2300) : v(-300, 0, -2500), labels: 1, tech: 0, arcs: 0, drift: 0.4 },
+      { pos: m ? v(900, 2300, 2600) : v(3400, 2500, 1500), target: m ? v(500, 0, -2300) : v(-300, 0, -2500), tech: 0, arcs: 0, drift: 0.4 },
       // trusted: data arcs from the skyline to clients
-      { pos: m ? v(7600, 800, 1600) : v(5600, 700, 1900), target: m ? v(-600, 100, 300) : v(-600, 600, 1150), labels: 0, tech: 0.15, arcs: 1, drift: 0.4 },
+      { pos: m ? v(7600, 800, 1600) : v(5600, 700, 1900), target: m ? v(-600, 100, 300) : v(-600, 600, 1150), tech: 0.15, arcs: 1, drift: 0.4 },
       // services: the city turns into a hologram; the camera visits one tower per service
       ...SERVICE_TOWERS.map((name, i) => this.towerShot(name, [0.75, 0.15, -0.55][i])),
       // contact: the HQ beacon
-      { pos: m ? v(hq.x - 500, 300, hq.z + 1700) : v(hq.x - 1100, 380, hq.z + 1300), target: m ? v(hq.x, 520, hq.z) : v(hq.x - 450, 420, hq.z), labels: 0, tech: 0, arcs: 0.6, drift: 0.6 },
+      { pos: m ? v(hq.x - 500, 300, hq.z + 1700) : v(hq.x - 1100, 380, hq.z + 1300), target: m ? v(hq.x, 520, hq.z) : v(hq.x - 450, 420, hq.z), tech: 0, arcs: 0.1, drift: 0.6 },
     ];
     this.camPos.copy(this.shots[0].pos);
     this.camTarget.copy(this.shots[0].target);
@@ -198,9 +197,8 @@ export class Experience {
     return {
       pos: new THREE.Vector3(c.x + Math.sin(azimuth) * dist, height, c.z + Math.cos(azimuth) * dist),
       target: new THREE.Vector3(c.x, m ? 40 : 130, c.z).addScaledVector(right, -side),
-      labels: 0,
       tech: 1,
-      arcs: 0.25,
+      arcs: 0.08,
       drift: 0.8,
       focus: new THREE.Vector3(c.x, c.y, c.z),
     };
@@ -354,7 +352,6 @@ export class Experience {
     return {
       pos: a.pos.clone().lerp(b.pos, e),
       target: a.target.clone().lerp(b.target, e),
-      labels: lerp(a.labels, b.labels, e),
       tech: lerp(a.tech, b.tech, e),
       arcs: lerp(a.arcs, b.arcs, e),
       drift: lerp(a.drift, b.drift, e),
@@ -383,7 +380,6 @@ export class Experience {
       damp(this.camTarget.y, shot.target.y, lambda, dt),
       damp(this.camTarget.z, shot.target.z, lambda, dt),
     );
-    this.params.labels = damp(this.params.labels, shot.labels, 3, dt);
     this.params.tech = damp(this.params.tech, shot.tech, 2.5, dt);
     this.params.arcs = damp(this.params.arcs, shot.arcs, 2.5, dt);
     this.params.focus = damp(this.params.focus, shot.focusAmt, 4, dt);
@@ -454,17 +450,10 @@ export class Experience {
 
   private updateLabels() {
     const intro = smoothstep(T_REVEAL, T_END, this.introTime);
-    let towers = 0;
-    let clients = 0;
     this.city.labels.forEach((label, i) => {
       const el = this.labelEls[i];
-      if (!el) return;
-      // Labels pop in one after another as their chapter comes into view.
-      let amount: number;
-      if (label.kind === "hq") amount = Math.max(this.params.labels, this.params.arcs * 0.9);
-      else if (label.kind === "client") amount = clamp(this.params.arcs * 2.2 - 0.2 * clients++);
-      else amount = clamp(this.params.labels * 2.2 - 0.12 * towers++);
-      this.project(label.position, el, amount * intro);
+      // Client names pop in one after another as the arcs light up.
+      if (el) this.project(label.position, el, clamp(this.params.arcs * 2.2 - 0.2 * i) * intro);
     });
     if (this.focusLabelEl) {
       this.project(this.tmp2.copy(this.focusPos).setY(this.focusPos.y + 45), this.focusLabelEl, this.params.focus);

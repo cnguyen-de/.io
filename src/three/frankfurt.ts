@@ -41,23 +41,21 @@ export interface Landmark {
   d?: number;
   /** rotation around y in radians */
   rot?: number;
-  /** show a label in the "location" shot */
-  label?: boolean;
   /** antenna tip height, if any */
   antenna?: number;
 }
 
 export const LANDMARKS: Landmark[] = [
-  { name: "Commerzbank Tower", lat: 50.1107, lon: 8.6744, height: 259, antenna: 300, shape: "commerzbank", w: 62, rot: 0.35, label: true },
-  { name: "Messeturm", lat: 50.1123, lon: 8.6526, height: 257, shape: "messeturm", w: 41, rot: 0.2, label: true },
+  { name: "Commerzbank Tower", lat: 50.1107, lon: 8.6744, height: 259, antenna: 300, shape: "commerzbank", w: 62, rot: 0.35 },
+  { name: "Messeturm", lat: 50.1123, lon: 8.6526, height: 257, shape: "messeturm", w: 41, rot: 0.2 },
   { name: "FOUR T1", lat: 50.1129, lon: 8.674, height: 233, shape: "box", w: 44, d: 34, rot: 0.3 },
-  { name: "Westend Tower", lat: 50.1098, lon: 8.6642, height: 208, shape: "westend", w: 46, d: 34, rot: -0.25, label: true },
-  { name: "Main Tower", lat: 50.1124, lon: 8.6718, height: 200, antenna: 240, shape: "maintower", w: 27, rot: 0.6, label: true },
-  { name: "Tower 185", lat: 50.1086, lon: 8.6537, height: 200, shape: "box", w: 56, d: 28, rot: 0.9, label: true },
+  { name: "Westend Tower", lat: 50.1098, lon: 8.6642, height: 208, shape: "westend", w: 46, d: 34, rot: -0.25 },
+  { name: "Main Tower", lat: 50.1124, lon: 8.6718, height: 200, antenna: 240, shape: "maintower", w: 27, rot: 0.6 },
+  { name: "Tower 185", lat: 50.1086, lon: 8.6537, height: 200, shape: "box", w: 56, d: 28, rot: 0.9 },
   { name: "Omniturm", lat: 50.1138, lon: 8.6727, height: 190, shape: "omniturm", w: 38, d: 38, rot: 0.3 },
   { name: "ONE", lat: 50.1107, lon: 8.6508, height: 190, shape: "box", w: 40, d: 32, rot: 0.5 },
   { name: "Trianon", lat: 50.1112, lon: 8.6685, height: 186, shape: "trianon", w: 50, rot: 1.1 },
-  { name: "EZB", lat: 50.1096, lon: 8.7026, height: 185, shape: "ecb", w: 56, d: 26, rot: 0.25, label: true },
+  { name: "EZB", lat: 50.1096, lon: 8.7026, height: 185, shape: "ecb", w: 56, d: 26, rot: 0.25 },
   { name: "Grand Tower", lat: 50.1068, lon: 8.6612, height: 180, shape: "chamfer", w: 40, d: 34, rot: 0.4 },
   { name: "Taunusturm", lat: 50.1101, lon: 8.6716, height: 170, shape: "box", w: 40, d: 30, rot: 0.3 },
   { name: "Opernturm", lat: 50.1155, lon: 8.6716, height: 170, shape: "box", w: 42, d: 30, rot: 0.2 },
@@ -67,8 +65,8 @@ export const LANDMARKS: Landmark[] = [
   { name: "Skyper", lat: 50.1096, lon: 8.6679, height: 154, shape: "round", w: 40, d: 30, rot: 0.2 },
   { name: "Eurotower", lat: 50.1094, lon: 8.6746, height: 148, shape: "box", w: 40, d: 28, rot: -0.3 },
   { name: "Frankfurter Büro Center", lat: 50.1134, lon: 8.6664, height: 142, shape: "box", w: 40, d: 30, rot: 0.25 },
-  { name: "Europaturm", lat: 50.1253, lon: 8.6563, height: 337, shape: "europaturm", label: true },
-  { name: "Kaiserdom", lat: 50.1106, lon: 8.6852, height: 95, shape: "dom", label: true },
+  { name: "Europaturm", lat: 50.1253, lon: 8.6563, height: 337, shape: "europaturm" },
+  { name: "Kaiserdom", lat: 50.1106, lon: 8.6852, height: 95, shape: "dom" },
 ];
 
 /** Centreline of the river Main through the city, west → east. */

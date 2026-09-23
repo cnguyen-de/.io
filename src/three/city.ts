@@ -52,8 +52,7 @@ const CITY_RADII = new THREE.Vector2(5200, 6400);
 export interface CityLabel {
   name: string;
   position: THREE.Vector3;
-  kind: "tower" | "hq" | "client";
-  href?: string;
+  href: string;
 }
 
 export interface CityUniforms {
@@ -682,7 +681,6 @@ export class City {
       tips.push(x, tip + 1, z);
       this.landmarkFootprints.push({ p: new THREE.Vector2(x, z), r: (l.w ?? 40) * 0.9 + 30 + (l.shape === "ecb" ? 120 : 0) });
       this.landmarkPositions.set(l.name, new THREE.Vector3(x, top, z));
-      if (l.label) this.labels.push({ name: l.name, position: new THREE.Vector3(x, tip + 25, z), kind: "tower" });
     });
     this.scene.add(new THREE.Mesh(mergeGeometries(geos), this.buildingMaterial()));
 
@@ -982,8 +980,8 @@ export class City {
             gl_FragColor = vec4(c, 1.0);
           }`,
       });
-    const inner = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 3200, 16, 1, true).translate(0, 1600, 0), beamMat(5, 2.2));
-    const outer = new THREE.Mesh(new THREE.CylinderGeometry(28, 16, 3200, 24, 1, true).translate(0, 1600, 0), beamMat(28, 0.45));
+    const inner = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 3200, 16, 1, true).translate(0, 1600, 0), beamMat(5, 1.1));
+    const outer = new THREE.Mesh(new THREE.CylinderGeometry(28, 16, 3200, 24, 1, true).translate(0, 1600, 0), beamMat(28, 0.18));
     inner.position.set(hq.x + 12, 36, hq.z);
     outer.position.copy(inner.position);
     this.scene.add(inner, outer);
@@ -1013,7 +1011,6 @@ export class City {
     ripple.position.set(hq.x, 1.2, hq.z);
     this.scene.add(ripple);
 
-    this.labels.push({ name: "May Solutions HQ", position: new THREE.Vector3(hq.x, 140, hq.z), kind: "hq" });
   }
 
   /** Light arcs: HQ ⇄ skyline ⇄ client locations. Visible in the "trusted" shot. */
@@ -1031,7 +1028,7 @@ export class City {
       arcs.push([cbd, end, lift]);
       const mid = cbd.clone().lerp(end, 0.5).setY(Math.max(cbd.y, end.y) + lift);
       const at = new THREE.QuadraticBezierCurve3(cbd, mid, end).getPoint(0.11);
-      this.labels.push({ name: c.client!, position: at, kind: "client", href: c.href });
+      this.labels.push({ name: c.client!, position: at, href: c.href! });
     });
     for (const c of CLIENT_LINKS.filter((l) => !l.client)) {
       const [x, z] = toLocal(c.lat, c.lon);
@@ -1063,7 +1060,7 @@ export class City {
               float head = fract(uTime * 0.22 + uOffset) * 1.5 - 0.25;
               float trail = smoothstep(head - 0.3, head, vT) * step(vT, head);
               float fog = exp(-length(vWorld - cameraPosition) * 0.00006);
-              float a = (0.14 + trail * 1.6) * uArcs * fog;
+              float a = (0.06 + trail * 0.75) * uArcs * fog;
               vec3 c = mix(vec3(0.3, 0.8, 1.0), vec3(1.0, 0.8, 0.5), step(0.5, fract(uOffset * 3.0)));
               gl_FragColor = vec4(c * a, 1.0);
             }`,

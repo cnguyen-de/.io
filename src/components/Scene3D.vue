@@ -10,7 +10,7 @@ const { t } = useLocale();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const labelEls: HTMLElement[] = [];
 const focusLabelRef = ref<HTMLElement | null>(null);
-const labels = shallowRef<{ name: string; kind: "tower" | "hq" | "client"; href?: string }[]>([]);
+const labels = shallowRef<{ name: string; href: string }[]>([]);
 const hud = reactive<HudState & { visible: boolean }>({
   lat: 0,
   lon: 0,
@@ -67,7 +67,7 @@ onMounted(async () => {
       onHud: (h) => Object.assign(hud, h),
       debugTime: import.meta.env.DEV ? Number(new URLSearchParams(location.search).get("t") ?? NaN) || undefined : undefined,
     });
-    labels.value = experience.labels.map((l) => ({ name: l.name, kind: l.kind, href: l.href }));
+    labels.value = experience.labels.map((l) => ({ name: l.name, href: l.href }));
     await nextTick();
     experience.attachLabels(labelEls, focusLabelRef.value);
     experience.setShot(sceneState.shot);
@@ -102,22 +102,20 @@ const fmt = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(4)}Â
       class="absolute inset-0 bg-[url('/hero.webp')] bg-cover bg-center bg-no-repeat blur-3xl"></div>
     <canvas v-else ref="canvasRef" class="block h-full w-full"></canvas>
 
-    <!-- Labels projected from 3D -->
-    <component
-      :is="label.href ? 'a' : 'div'"
+    <!-- Client names riding on the arcs, projected from 3D -->
+    <a
       v-for="(label, i) in labels"
       :key="label.name"
-      :ref="(el: unknown) => (labelEls[i] = ((el as { $el?: HTMLElement })?.$el ?? el) as HTMLElement)"
+      :ref="(el) => (labelEls[i] = el as HTMLElement)"
       :href="label.href"
-      :target="label.href ? '_blank' : undefined"
-      :rel="label.href ? 'noopener noreferrer' : undefined"
-      :tabindex="-1"
-      class="scene-label absolute left-0 top-0"
-      :class="`scene-label--${label.kind}`"
+      target="_blank"
+      rel="noopener noreferrer"
+      tabindex="-1"
+      class="scene-label scene-label--client absolute left-0 top-0"
       style="visibility: hidden; opacity: 0">
       <span class="scene-label__dot"></span>
       <span class="scene-label__text">{{ label.name }}</span>
-    </component>
+    </a>
     <div ref="focusLabelRef" class="scene-label scene-label--focus absolute left-0 top-0" style="visibility: hidden; opacity: 0">
       <span class="scene-label__text">{{ sceneState.focusLabel }}</span>
     </div>
@@ -209,12 +207,6 @@ const fmt = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(4)}Â
   border-color: rgb(103 232 249 / 0.8);
   color: white;
   box-shadow: 0 0 40px rgb(34 211 238 / 0.45);
-}
-.scene-label--hq .scene-label__text {
-  font-size: 12px;
-  border-color: rgb(103 232 249 / 0.7);
-  color: white;
-  box-shadow: 0 0 24px rgb(34 211 238 / 0.35);
 }
 .fade-enter-active,
 .fade-leave-active {

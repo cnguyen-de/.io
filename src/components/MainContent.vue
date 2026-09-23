@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, watchEffect } from "vue";
+import { useStepScroll } from "../composables/useStepScroll";
 import { useLocale } from "../i18n/useLocale";
 import { sceneState } from "../three/store";
 import { SHOTS } from "../three/story";
+import { prefersReducedMotion } from "../three/utils";
 import KineticText from "./KineticText.vue";
 import Scene3D from "./Scene3D.vue";
 import TechTicker from "./TechTicker.vue";
@@ -23,6 +25,18 @@ const clients = [
 
 const CHAPTERS = ["hero", "location", "trusted", "services", "contact"] as const;
 type Chapter = (typeof CHAPTERS)[number];
+
+/**
+ * Scroll stops within each chapter (as chapter progress). Each stop is a moment where the
+ * chapter's content is fully shown; one swipe / wheel gesture moves exactly one stop.
+ */
+const SNAPS: Record<Chapter, number[]> = {
+  hero: [0],
+  location: [0.5],
+  trusted: [0.5],
+  services: [0.2, 0.5, 0.8], // one per service
+  contact: [1],
+};
 
 /** Camera shot at 20% and at 80% of each chapter; in between the camera flies. */
 const SHOT_RANGE: Record<Chapter, [number, number]> = {
@@ -84,9 +98,15 @@ function onScroll() {
   });
 }
 
+const { scrollTo } = useStepScroll({
+  stops: () => layout.flatMap(({ id, top, range }) => SNAPS[id].map((p) => Math.round(top + range * p))),
+  enabled: () => sceneState.revealed,
+  duration: prefersReducedMotion() ? 350 : 1100,
+});
+
 function goTo(id: Chapter) {
   const l = layout.find((c) => c.id === id);
-  if (l) window.scrollTo({ top: l.top + l.range * 0.5, behavior: "smooth" });
+  if (l) scrollTo(Math.round(l.top + l.range * SNAPS[id][0]));
 }
 
 // Re-measure whenever layout changes (styles/fonts arriving, resizes, language switch).
@@ -277,20 +297,16 @@ const heroOut = computed(() => {
             contact@may-solutions.io
           </a>
         </div>
+        <a
+          href="/impressum"
+          class="pointer-events-auto absolute bottom-5 right-4 font-mono text-[11px] uppercase tracking-[0.2em] text-gray-400 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-white md:bottom-6 md:right-6"
+          :style="{ opacity: smoothstep(0.3, 0.6, progress.contact) }">
+          {{ t.footer.imprint }}
+        </a>
       </div>
     </section>
   </main>
 
-  <!-- Footer -->
-  <footer
-    class="relative mx-auto flex justify-center border-t border-gray-500/20 bg-gray-950/60 p-3 backdrop-blur-sm transition-opacity duration-1000"
-    :class="sceneState.revealed ? 'opacity-100' : 'opacity-0'">
-    <a
-      href="/impressum"
-      class="rounded-sm text-gray-300 underline-offset-2 transition-all hover:underline focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
-      {{ t.footer.imprint }}
-    </a>
-  </footer>
 </template>
 
 <style>
