@@ -1,16 +1,31 @@
 export const en = {
+  intro: {
+    skip: 'Skip intro',
+    scroll: 'Scroll to explore',
+    acquiring: 'Acquiring target',
+    locked: 'Frankfurt am Main',
+  },
+  chapters: {
+    location: 'Frankfurt',
+    trusted: 'Clients',
+    services: 'Services',
+    contact: 'Contact',
+  },
   hero: {
     tagline: 'EXCELLENCE. EXPERTISE. EFFICIENCY.',
   },
   location: {
+    eyebrow: 'Headquarters',
     heading: 'Centrally Located in Frankfurt, Europe',
     body: 'Our headquarters are strategically situated in Frankfurt, a central hub of business and culture in Europe, ensuring easy access and connectivity for our clients and partners.',
   },
   trusted: {
+    hint: 'Every arc leads to a client — follow one.',
     heading: 'OUR WORKS HAVE BEEN TRUSTED BY',
     body: 'We are proud to have helped implement solutions for leading companies across various sectors. Our commitment to excellence and customer satisfaction has made us a valuable partner to our clients.',
   },
   services: {
+    eyebrow: 'From skyline to stack',
     heading: 'OUR SERVICES',
     body: 'We work with a broad range of modern technologies to build solutions that meet your specific requirements. Our technical expertise allows us to deliver reliable, maintainable software that supports your business objectives.',
     webDev: {

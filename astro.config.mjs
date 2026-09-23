@@ -10,5 +10,7 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    // three.js lives in its own lazily loaded chunk (the 3D scene).
+    build: { chunkSizeWarningLimit: 800 },
   },
 });

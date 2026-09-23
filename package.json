@@ -17,13 +17,16 @@
     "@tailwindcss/vite": "^4.2.2",
     "@vueuse/core": "^14.1.0",
     "astro": "^6.1.1",
-    "cobe": "^0.6.3",
     "tailwindcss": "^4.2.2",
+    "three": "^0.186.0",
+    "topojson-client": "^3.1.0",
     "typescript": "^5.5.4",
     "vue": "^3.4.36",
-    "vue-use-spring": "^0.3.3"
+    "world-atlas": "^2.0.2"
   },
   "devDependencies": {
+    "@types/three": "^0.186.0",
+    "@types/topojson-client": "^3.1.5",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.6.5"
