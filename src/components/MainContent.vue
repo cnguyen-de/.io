@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, watchEffect } from "vue";
+import { computed, onBeforeUnmount, onMounted, reactive, watch, watchEffect } from "vue";
 import { useStepScroll } from "../composables/useStepScroll";
 import { useLocale } from "../i18n/useLocale";
 import { sceneState } from "../three/store";
@@ -139,6 +139,19 @@ const serviceVisibility = (k: number) =>
 watchEffect(() => {
   sceneState.focusLabel = services.value[activeService.value].title;
 });
+
+// --- Easter egg ---------------------------------------------------------------------------------
+// Linger on the contact chapter for 5 s and a plane crosses the sky. Re-arms after leaving.
+
+let planeTimer = 0;
+watch(
+  () => progress.contact > 0.9,
+  (atContact) => {
+    clearTimeout(planeTimer);
+    if (atContact) planeTimer = window.setTimeout(() => sceneState.planeFlights++, 5000);
+  },
+);
+onBeforeUnmount(() => clearTimeout(planeTimer));
 
 // --- Chapter rail -------------------------------------------------------------------------------
 

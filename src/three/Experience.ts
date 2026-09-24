@@ -7,6 +7,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { City } from "./city";
 import { FRANKFURT, ORIGIN } from "./frankfurt";
 import { GLOBE_RADIUS, Globe } from "./globe";
+import { Plane } from "./plane";
 import { SERVICE_TOWERS } from "./story";
 import { clamp, damp, easeInCubic, easeInOutCubic, lerp, mulberry32, smoothstep } from "./utils";
 
@@ -105,6 +106,7 @@ export class Experience {
   private globe: Globe;
 
   private city: City;
+  private plane: Plane;
   private camera = new THREE.PerspectiveCamera(42, 1, 5, 70000);
   private shots: Shot[];
 
@@ -151,6 +153,8 @@ export class Experience {
 
     // --- city
     this.city = new City(this.pixelRatio, opts.mobile);
+    this.plane = new Plane(this.pixelRatio);
+    this.city.scene.add(this.plane.group);
     const hq = this.city.hqPosition;
     const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
     const m = opts.mobile;
@@ -232,6 +236,11 @@ export class Experience {
     this.shotF = clamp(f, 0, this.shots.length - 1);
   }
 
+  /** Easter egg: send a plane across the sky of the current view (ignored while one is flying). */
+  flyPlane() {
+    if (this.phase === "city" && !this.plane.flying) this.plane.fly(this.camera);
+  }
+
   setPointer(x: number, y: number) {
     this.pointer.set(x, y);
   }
@@ -275,6 +284,7 @@ export class Experience {
     this.finalPass.uniforms.uRes.value.set(w * this.pixelRatio, h * this.pixelRatio);
     this.globe.setPixelRatio(this.pixelRatio);
     this.city.uniforms.uPixelRatio.value = this.pixelRatio;
+    this.plane.setPixelRatio(this.pixelRatio);
   };
 
   private tick = () => {
@@ -428,6 +438,7 @@ export class Experience {
     U.uFocus.value.copy(this.focusPos);
     U.uFocusAmt.value = this.params.focus;
     this.city.update(cam);
+    this.plane.update(dt, this.time);
 
     this.bloom.strength = lerp(0.75, 1.0, this.params.tech);
     this.updateLabels();

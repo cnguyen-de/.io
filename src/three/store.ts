@@ -10,4 +10,6 @@ export const sceneState = reactive({
   shot: 0,
   /** Text of the label floating over the focused tower (services tour). */
   focusLabel: "",
+  /** Incremented to send the easter-egg plane across the sky. */
+  planeFlights: 0,
 });

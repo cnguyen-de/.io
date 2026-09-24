@@ -28,6 +28,11 @@ watch(
   (f) => experience?.setShot(f),
 );
 
+watch(
+  () => sceneState.planeFlights,
+  () => experience?.flyPlane(),
+);
+
 function onPointer(e: PointerEvent) {
   if (e.pointerType !== "mouse") return;
   experience?.setPointer((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1);
