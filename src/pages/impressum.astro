@@ -1,16 +1,120 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Link from '../components/Link.astro';
+import Layout from "../layouts/Layout.astro";
+
+const details = [
+  { label: "Unternehmen", value: "May Solutions UG (haftungsbeschränkt)" },
+  { label: "Anschrift", value: "Ella-Bergmann-Michel-Str. 3 · 60438 Frankfurt am Main" },
+  { label: "Geschäftsführer", value: "Minh Chi Nguyen" },
+  { label: "E-Mail", value: "contact@may-solutions.io", href: "mailto:contact@may-solutions.io" },
+  { label: "Registergericht", value: "Amtsgericht Frankfurt am Main, HRB 135446" },
+  { label: "USt-IdNr.", value: "DE370068156" },
+];
 ---
 
-<Layout title="Imprint">
-  <div class="mx-auto max-w-2xl text-white">
-    <Link href="/"> 🔙 Back to home</Link>
-    <p>May Solutions UG (haftungsbeschränkt)</p>
-    <p>Ella-Bergmann-Michel-Str. 3, 60438, Frankfurt am Main</p>
-    <p>Geschäftsführer: Minh Chi Nguyen</p>
-    <Link href="mailto:contact@may-solutions.io">contact@may-solutions.io</Link>
-    <p>Registergericht Amtsgericht Frankfurt am Main HRB 135446</p>
-    <p>USt-IDnr: DE370068156</p>
+<Layout title="Impressum – May Solutions" description="Impressum der May Solutions UG (haftungsbeschränkt), Frankfurt am Main.">
+  <div class="sky" aria-hidden="true">
+    <div class="stars"></div>
   </div>
+
+  <main class="relative mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-10 md:px-10 md:py-14">
+    <a href="/" class="back">← May Solutions</a>
+
+    <div class="my-auto py-16">
+      <p class="eyebrow">Impressum · Legal notice</p>
+      <h1 class="heading">Impressum</h1>
+
+      <dl class="mt-12 divide-y divide-white/10 border-y border-white/10">
+        {
+          details.map((d) => (
+            <div class="grid gap-1 py-4 md:grid-cols-[12rem_1fr] md:gap-6">
+              <dt class="label">{d.label}</dt>
+              <dd class="text-lg font-light text-gray-200">
+                {d.href ? (
+                  <a href={d.href} class="text-cyan-100 underline decoration-cyan-300/40 underline-offset-4 transition hover:decoration-cyan-200">
+                    {d.value}
+                  </a>
+                ) : (
+                  d.value
+                )}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    <p class="coords">● Frankfurt am Main · 50.1660° N · 8.6820° E</p>
+  </main>
 </Layout>
+
+<style>
+  /* Same night palette as the 3D scene: horizon haze and a starfield. */
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(ellipse 120% 60% at 50% 100%, rgb(70 60 110 / 0.45), transparent 70%),
+      linear-gradient(to bottom, rgb(2 4 12), rgb(9 12 28) 60%, rgb(18 20 40));
+  }
+  .stars {
+    position: absolute;
+    inset: 0 0 40% 0;
+    background-image: radial-gradient(1px 1px at 12% 18%, rgb(200 220 255 / 0.8), transparent),
+      radial-gradient(1px 1px at 27% 42%, rgb(200 220 255 / 0.5), transparent),
+      radial-gradient(1px 1px at 41% 12%, rgb(200 220 255 / 0.7), transparent),
+      radial-gradient(1px 1px at 58% 31%, rgb(200 220 255 / 0.6), transparent),
+      radial-gradient(1px 1px at 73% 9%, rgb(200 220 255 / 0.8), transparent),
+      radial-gradient(1px 1px at 86% 38%, rgb(200 220 255 / 0.5), transparent),
+      radial-gradient(1px 1px at 93% 21%, rgb(200 220 255 / 0.7), transparent),
+      radial-gradient(1px 1px at 6% 55%, rgb(200 220 255 / 0.4), transparent),
+      radial-gradient(1px 1px at 35% 64%, rgb(200 220 255 / 0.4), transparent),
+      radial-gradient(1px 1px at 66% 58%, rgb(200 220 255 / 0.4), transparent);
+    background-size: 420px 420px;
+  }
+
+  .back {
+    align-self: flex-start;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgb(165 243 252 / 0.8);
+    transition: color 0.2s;
+  }
+  .back:hover {
+    color: white;
+  }
+
+  .eyebrow {
+    margin-bottom: 0.9rem;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgb(165 243 252 / 0.85);
+  }
+  .heading {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: white;
+    text-shadow: 0 2px 30px rgb(0 0 0 / 0.6);
+  }
+  .label {
+    padding-top: 0.3rem;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgb(156 163 175);
+  }
+  .coords {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgb(165 243 252 / 0.6);
+  }
+</style>

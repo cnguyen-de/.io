@@ -10,6 +10,7 @@ import {
   toLocal,
   type Landmark,
 } from "./frankfurt";
+import SKYLINE from "./skyline.json";
 import { mulberry32 } from "./utils";
 
 /** Street grid shared by the ground shader, the block generator and traffic. */
@@ -110,11 +111,13 @@ const buildingVertex = /* glsl */ `
   attribute float aSeed;
   attribute float aTop;
   attribute vec3 aAccent;
+  attribute vec3 aTint;
   varying vec3 vWorld;
   varying vec3 vNormalW;
   varying float vSeed;
   varying float vTop;
   varying vec3 vAccent;
+  varying vec3 vTint;
   void main() {
     mat4 m = modelMatrix;
     #ifdef USE_INSTANCING
@@ -132,6 +135,7 @@ const buildingVertex = /* glsl */ `
     vSeed = aSeed;
     vTop = aTop * g;
     vAccent = aAccent;
+    vTint = aTint;
     gl_Position = projectionMatrix * viewMatrix * wp;
   }
 `;
@@ -143,6 +147,7 @@ const buildingFragment = /* glsl */ `
   varying float vSeed;
   varying float vTop;
   varying vec3 vAccent;
+  varying vec3 vTint;
   void main() {
     vec3 n = normalize(vNormalW);
     float h = vWorld.y;
@@ -152,10 +157,9 @@ const buildingFragment = /* glsl */ `
     float wall = 1.0 - smoothstep(0.4, 0.6, abs(n.y));
     float diff = 0.6 + 0.4 * dot(n, normalize(vec3(-0.35, 0.75, 0.45)));
 
-    vec3 concrete = mix(vec3(0.022, 0.026, 0.042), vec3(0.04, 0.046, 0.07), clamp(h / 60.0, 0.0, 1.0));
-    // Glass towers reflect the night sky, brighter towards the top.
-    vec3 glass = vec3(0.02, 0.034, 0.06) + vec3(0.08, 0.11, 0.2) * fres * wall
-      + vec3(0.02, 0.03, 0.05) * clamp(h / vTop, 0.0, 1.0);
+    vec3 concrete = mix(vec3(0.012, 0.014, 0.024), vec3(0.022, 0.026, 0.042), clamp(h / 60.0, 0.0, 1.0));
+    // Towers keep their own facade colour (dark blue glass, granite, …) with a hint of sky reflection.
+    vec3 glass = vTint * (0.8 + 0.4 * clamp(h / vTop, 0.0, 1.0)) + vec3(0.012, 0.016, 0.03) * fres * wall;
     vec3 col = mix(concrete, glass, lm) * diff;
 
     // Facade coordinates: horizontal distance along the wall, vertical floors.
@@ -168,22 +172,25 @@ const buildingFragment = /* glsl */ `
     vec2 winMin = mix(vec2(0.2, 0.25), vec2(0.08, 0.12), lm);
     float win = step(winMin.x, f.x) * step(f.x, 1.0 - winMin.x) * step(winMin.y, f.y) * step(f.y, 0.85);
     float r = hash12(id + vSeed * 17.31);
-    float litFrac = mix(0.26, 0.42, lm);
+    float litFrac = mix(0.26, 0.2, lm);
     float lit = step(1.0 - litFrac, r);
     vec3 warm = vec3(1.0, 0.66, 0.34);
     vec3 cool = vec3(0.7, 0.84, 1.0);
-    vec3 wc = mix(warm, cool, step(mix(0.85, 0.35, lm), hash12(id * 1.37 + vSeed)));
-    float aa = clamp(max(fwidth(cell.x), fwidth(cell.y)) * 1.2, 0.0, 1.0);
+    vec3 wc = mix(warm, cool, step(mix(0.85, 0.55, lm), hash12(id * 1.37 + vSeed)));
+    // Windows smaller than ~2 px fade into their average instead of sparkling.
+    float aa = smoothstep(0.25, 0.7, max(fwidth(cell.x), fwidth(cell.y)));
     float avgWin = litFrac * 0.5;
     float pattern = mix(win * lit * (0.6 + 0.8 * r), avgWin * 0.6, aa);
-    col += wc * pattern * mix(0.55, 0.5, lm) * wall;
+    col += wc * pattern * mix(0.55, 0.32, lm) * wall;
 
     // Warm street-level bounce light.
     col += vec3(1.0, 0.55, 0.25) * 0.05 * exp(-h / 14.0) * wall;
 
     // Lit crowns on the landmark towers: a slim band just below the roof line.
-    float crown = smoothstep(vTop - 7.0, vTop - 1.5, h) * (1.0 - smoothstep(vTop + 2.0, vTop + 6.0, h)) * lm;
-    col += vAccent * crown * 0.5 * wall + vAccent * 0.2 * crown * (1.0 - wall);
+    // Taller towers get a taller band, so the crown stays legible from the bird's-eye view.
+    float band = clamp(vTop * 0.05, 5.0, 13.0);
+    float crown = smoothstep(vTop - band, vTop - 1.5, h) * (1.0 - smoothstep(vTop + 2.0, vTop + 6.0, h)) * lm;
+    col += vAccent * crown * 0.7 * wall + vAccent * 0.06 * crown * (1.0 - wall);
 
     // Hologram / "tech" look.
     float floors = smoothstep(0.08, 0.0, abs(fract(h / 15.6) - 0.5) - 0.44);
@@ -192,15 +199,16 @@ const buildingFragment = /* glsl */ `
     vec3 cyan = vec3(0.15, 0.75, 1.0);
     vec3 holo = vec3(0.008, 0.022, 0.05)
       + cyan * (0.18 * floors * wall + 1.0 * scan * wall + 0.8 * fres * wall + 0.06 * (1.0 - wall) + 0.45 * dataWin * wall)
-      + vAccent * crown * 0.6;
+      + vAccent * crown * 0.6 * wall;
     // While a tower is in focus, the rest of the hologram city steps back.
     col = mix(col, holo * (1.0 - 0.45 * uFocusAmt), uTech);
 
     // Focused tower (services tour): bright scanning hologram.
     float inFocus = uFocusAmt * (1.0 - smoothstep(45.0, 70.0, length(vWorld.xz - uFocus.xz)));
     float sweep = exp(-pow((fract(h / 90.0 - uTime * 0.5) - 0.5) * 10.0, 2.0));
-    vec3 focusCol = vec3(0.35, 0.9, 1.0) * (0.35 + 0.9 * sweep + 0.8 * fres) * wall
-      + vec3(0.6, 0.95, 1.0) * win * lit * 0.8 * wall;
+    // Kept well below bloom saturation so the tower reads as cyan, not white.
+    vec3 focusCol = vec3(0.12, 0.62, 1.0) * (0.14 + 0.32 * sweep + 0.3 * fres) * wall
+      + vec3(0.45, 0.85, 1.0) * win * lit * 0.3 * wall;
     col = mix(col, focusCol, inFocus * 0.85);
 
     gl_FragColor = vec4(applyFog(col, vWorld), 1.0);
@@ -223,42 +231,45 @@ function makeUniforms(pixelRatio: number): CityUniforms & Record<string, THREE.I
 
 // --- landmark geometry helpers -----------------------------------------------------------------
 
-function roundedPolygon(points: THREE.Vector2[], radius: number, segs = 6) {
-  const shape = new THREE.Shape();
-  const n = points.length;
-  for (let i = 0; i < n; i++) {
-    const p = points[i];
-    const prev = points[(i + n - 1) % n];
-    const next = points[(i + 1) % n];
-    const a = prev.clone().sub(p).normalize().multiplyScalar(radius).add(p);
-    const b = next.clone().sub(p).normalize().multiplyScalar(radius).add(p);
-    for (let s = 0; s <= segs; s++) {
-      const t = s / segs;
-      // quadratic bezier a -> p -> b
-      const x = (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * p.x + t * t * b.x;
-      const y = (1 - t) * (1 - t) * a.y + 2 * (1 - t) * t * p.y + t * t * b.y;
-      if (i === 0 && s === 0) shape.moveTo(x, y);
-      else shape.lineTo(x, y);
-    }
-  }
-  shape.closePath();
-  return shape;
+/** A footprint from skyline.json: real outline (local metres, x/z) and heights from OpenStreetMap. */
+interface Footprint {
+  name?: string;
+  h: number;
+  minH?: number;
+  roof?: string;
+  roofH?: number;
+  pts: [number, number][];
 }
 
-function regular(n: number, r: number, phase = Math.PI / 2) {
-  return Array.from({ length: n }, (_, i) => {
-    const a = phase + (i / n) * Math.PI * 2;
-    return new THREE.Vector2(Math.cos(a) * r, Math.sin(a) * r);
+function footprintCentre(pts: [number, number][]) {
+  const c = pts.reduce((acc, [x, z]) => acc.add(new THREE.Vector2(x, z)), new THREE.Vector2());
+  return c.divideScalar(pts.length);
+}
+
+function footprintArea(pts: [number, number][]) {
+  let a = 0;
+  pts.forEach(([x1, z1], i) => {
+    const [x2, z2] = pts[(i + 1) % pts.length];
+    a += x1 * z2 - x2 * z1;
   });
+  return Math.abs(a / 2);
 }
 
-function rect(w: number, d: number) {
-  return [
-    new THREE.Vector2(-w / 2, -d / 2),
-    new THREE.Vector2(w / 2, -d / 2),
-    new THREE.Vector2(w / 2, d / 2),
-    new THREE.Vector2(-w / 2, d / 2),
-  ];
+/** Pyramid roof from a footprint's edges up to an apex above its centre (Messeturm). */
+function pyramidRoof(pts: [number, number][], y0: number, y1: number) {
+  const c = footprintCentre(pts);
+  const pos: number[] = [];
+  pts.forEach(([x1, z1], i) => {
+    const [x2, z2] = pts[(i + 1) % pts.length];
+    // Wind each face so its normal points away from the centre.
+    const outward = (x2 - x1) * (c.y - z1) - (z2 - z1) * (c.x - x1) < 0;
+    const [ax, az, bx, bz] = outward ? [x1, z1, x2, z2] : [x2, z2, x1, z1];
+    pos.push(ax, y0, az, c.x, y1, c.y, bx, y0, bz);
+  });
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  return g;
 }
 
 function prism(shape: THREE.Shape, h: number, y0 = 0) {
@@ -284,51 +295,6 @@ function landmarkParts(l: Landmark): { parts: THREE.BufferGeometry[]; top: numbe
   const parts: THREE.BufferGeometry[] = [];
   let top = H;
   switch (l.shape) {
-    case "commerzbank": {
-      parts.push(prism(roundedPolygon(regular(3, w * 0.6), 9), H - 14));
-      parts.push(prism(roundedPolygon(regular(3, w * 0.5), 7), 14, H - 14));
-      break;
-    }
-    case "messeturm": {
-      const body = H - 36;
-      parts.push(prism(roundedPolygon(rect(w, w), 4, 3), body));
-      parts.push(new THREE.ConeGeometry((w / 2) * Math.SQRT2 * 0.92, 36, 4).rotateY(Math.PI / 4).translate(0, body + 18, 0));
-      top = H;
-      break;
-    }
-    case "westend": {
-      parts.push(box(w, H - 22, d));
-      const ring = 24;
-      for (let i = 0; i < ring; i++) {
-        const a = (i / ring) * Math.PI * 2;
-        const slat = new THREE.BoxGeometry(1.6, 24, 3).rotateY(-a).translate(Math.cos(a) * 17, H - 22 + 12, Math.sin(a) * 17);
-        parts.push(slat);
-      }
-      top = H - 22;
-      break;
-    }
-    case "maintower": {
-      parts.push(cyl(w, w, H, 0, 32));
-      parts.push(box(w * 1.5, H * 0.84, w * 1.1, w * 0.9, 0, 0));
-      break;
-    }
-    case "omniturm": {
-      const g = box(w, H, d, 0, 0, 0, 48);
-      const pos = g.attributes.position as THREE.BufferAttribute;
-      for (let i = 0; i < pos.count; i++) {
-        const y = pos.getY(i);
-        const t = THREE.MathUtils.clamp((y - 55) / 45, 0, 1);
-        pos.setX(i, pos.getX(i) + Math.sin(t * Math.PI) * 7);
-        pos.setZ(i, pos.getZ(i) + Math.sin(t * Math.PI) * 4);
-      }
-      g.computeVertexNormals();
-      parts.push(g);
-      break;
-    }
-    case "trianon": {
-      parts.push(prism(roundedPolygon(regular(3, w * 0.62), 3), H));
-      break;
-    }
     case "ecb": {
       for (const [side, hh] of [
         [-1, H],
@@ -368,33 +334,11 @@ function landmarkParts(l: Landmark): { parts: THREE.BufferGeometry[]; top: numbe
       top = 97;
       break;
     }
-    case "chamfer": {
-      const s = new THREE.CylinderGeometry(w / 2, w / 2, H, 8).rotateY(Math.PI / 8).scale(1, 1, d / w);
-      parts.push(s.translate(0, H / 2, 0));
-      break;
-    }
-    case "round": {
-      parts.push(prism(roundedPolygon(rect(w, d), d / 2 - 1, 8), H));
-      break;
-    }
-    case "twin": {
-      parts.push(prism(roundedPolygon(rect(w * 0.8, d * 0.8), 4, 2), H));
-      const g2 = prism(roundedPolygon(rect(w * 0.8, d * 0.8), 4, 2), H);
-      parts.push(g2.translate(w * 0.7, 0, d * 0.75));
-      break;
-    }
-    default: {
-      parts.push(box(w, H - 8, d));
-      parts.push(box(w * 0.7, 8, d * 0.7, 0, H - 8, 0));
-      top = H - 8;
-    }
-  }
-  if (l.antenna) {
-    parts.push(cyl(0.9, 1.6, l.antenna - H, H, 6));
   }
   return { parts, top };
 }
 
+/** Crown / accent lighting per tower, roughly matching how they're lit at night. */
 const ACCENTS: Record<string, [number, number, number]> = {
   "Commerzbank Tower": [1.0, 0.72, 0.3],
   Messeturm: [1.0, 0.85, 0.6],
@@ -403,12 +347,42 @@ const ACCENTS: Record<string, [number, number, number]> = {
   EZB: [0.3, 0.75, 1.0],
   Europaturm: [1.0, 0.25, 0.2],
   Omniturm: [0.6, 0.9, 1.0],
-  "FOUR T1": [0.5, 0.8, 1.0],
   "Tower 185": [0.9, 0.9, 1.0],
+  Trianon: [0.55, 0.8, 1.0],
   Kaiserdom: [1.0, 0.6, 0.3],
 };
+/** Unnamed towers: a faint crown so the named landmarks stand out. */
+const DEFAULT_ACCENT: [number, number, number] = [0.1, 0.14, 0.2];
 
-function withAttributes(g: THREE.BufferGeometry, seed: number, top: number, accent: [number, number, number]) {
+/**
+ * Facade colour per tower, so each reads as itself. Values are linear and deliberately small:
+ * tone mapping lifts them a lot, and at night the lit windows should carry the brightness.
+ */
+const TINTS: Record<string, [number, number, number]> = {
+  "Commerzbank Tower": [0.045, 0.05, 0.06], // light grey steel and glass
+  "Main Tower": [0.006, 0.015, 0.042], // dark blue glass cylinder
+  "Turm A": [0.005, 0.009, 0.018], // Deutsche Bank twins: dark mirror glass
+  "Turm B": [0.005, 0.009, 0.018],
+  Messeturm: [0.052, 0.02, 0.017], // red granite
+  Trianon: [0.01, 0.014, 0.02],
+  "Westend Tower": [0.04, 0.042, 0.045], // pale natural stone
+  Silberturm: [0.035, 0.037, 0.042], // aluminium
+  "Tower 185": [0.03, 0.032, 0.036],
+  Omniturm: [0.012, 0.02, 0.03],
+  Eurotower: [0.02, 0.02, 0.022],
+  EZB: [0.015, 0.02, 0.03],
+  Europaturm: [0.035, 0.05, 0.08], // concrete, as before
+};
+const DEFAULT_TINT: [number, number, number] = [0.014, 0.02, 0.032];
+const LIT_ROOF: [number, number, number] = [0.3, 0.17, 0.09];
+
+function withAttributes(
+  g: THREE.BufferGeometry,
+  seed: number,
+  top: number,
+  accent: [number, number, number],
+  tint: [number, number, number] = DEFAULT_TINT,
+) {
   let geo = g.index ? g.toNonIndexed() : g;
   geo.deleteAttribute("uv");
   if (!geo.attributes.normal) geo.computeVertexNormals();
@@ -418,6 +392,9 @@ function withAttributes(g: THREE.BufferGeometry, seed: number, top: number, acce
   const acc = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) acc.set(accent, i * 3);
   geo.setAttribute("aAccent", new THREE.Float32BufferAttribute(acc, 3));
+  const tints = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) tints.set(tint, i * 3);
+  geo.setAttribute("aTint", new THREE.Float32BufferAttribute(tints, 3));
   return geo;
 }
 
@@ -650,7 +627,7 @@ export class City {
             // Rings rippling out from the focused tower.
             float fd = length(xz - uFocus.xz);
             float rings = 1.0 - smoothstep(0.0, 0.06, abs(fract(fd / 70.0 - uTime * 0.6) - 0.5));  // one 8 m ring per 70 m
-            col += vec3(0.3, 0.85, 1.0) * rings * uFocusAmt * (1.0 - smoothstep(60.0, 420.0, fd)) * 0.9;
+            col += vec3(0.3, 0.85, 1.0) * rings * uFocusAmt * (1.0 - smoothstep(60.0, 420.0, fd)) * 0.55;
             gl_FragColor = vec4(applyFog(col, vWorld), 1.0);
           }`,
       }),
@@ -666,22 +643,23 @@ export class City {
     const geos: THREE.BufferGeometry[] = [];
     const edges: THREE.BufferGeometry[] = [];
     const tips: number[] = [];
+    // Hand-modelled landmarks.
     LANDMARKS.forEach((l, i) => {
       const [x, z] = toLocal(l.lat, l.lon);
       const { parts, top } = landmarkParts(l);
       const m = new THREE.Matrix4().makeRotationY(l.rot ?? 0).setPosition(x, 0, z);
-      const accent = ACCENTS[l.name] ?? [0.45, 0.65, 0.95];
+      const accent = ACCENTS[l.name] ?? DEFAULT_ACCENT;
       for (const p of parts) {
         p.applyMatrix4(m);
-        const e = new THREE.EdgesGeometry(p, 35);
-        edges.push(e);
-        geos.push(withAttributes(p, i + 1.5, top, accent));
+        edges.push(new THREE.EdgesGeometry(p, 35));
+        geos.push(withAttributes(p, i + 1.5, top, accent, TINTS[l.name] ?? DEFAULT_TINT));
       }
-      const tip = l.antenna ?? (l.shape === "europaturm" ? 294 : l.height);
-      tips.push(x, tip + 1, z);
+      tips.push(x, (l.shape === "europaturm" ? 294 : l.height) + 1, z);
       this.landmarkFootprints.push({ p: new THREE.Vector2(x, z), r: (l.w ?? 40) * 0.9 + 30 + (l.shape === "ecb" ? 120 : 0) });
       this.landmarkPositions.set(l.name, new THREE.Vector3(x, top, z));
     });
+
+    this.buildSkyline(geos, edges, tips);
     this.scene.add(new THREE.Mesh(mergeGeometries(geos), this.buildingMaterial()));
 
     const edgeLines = new THREE.LineSegments(
@@ -742,6 +720,55 @@ export class City {
       }),
     );
     this.scene.add(tipPoints);
+  }
+
+  /** The real skyline: OpenStreetMap footprints extruded to their real heights. */
+  private buildSkyline(geos: THREE.BufferGeometry[], edges: THREE.BufferGeometry[], tips: number[]) {
+    const data = SKYLINE as Footprint[];
+    // Masts and antennas are tiny footprints; they shouldn't carry the crown lighting.
+    const isMast = (f: Footprint) => footprintArea(f.pts) < 60;
+
+    // One crown height, seed and landmark position per named tower (towers consist of many parts).
+    const towers = new Map<string, { body: Footprint; tip: Footprint; seed: number }>();
+    for (const f of data) {
+      if (!f.name) continue;
+      const t = towers.get(f.name) ?? { body: f, tip: f, seed: towers.size * 7.3 + 30 };
+      if (!isMast(f) && (isMast(t.body) || f.h > t.body.h)) t.body = f;
+      if (f.h > t.tip.h) t.tip = f;
+      towers.set(f.name, t);
+    }
+
+    data.forEach((f, i) => {
+      const tower = f.name ? towers.get(f.name)! : undefined;
+      const crown = tower ? tower.body.h : f.h;
+      const accent = (f.name && ACCENTS[f.name]) || DEFAULT_ACCENT;
+      const seed = tower?.seed ?? i * 1.91 + 200;
+
+      // Shape space (x, y) maps to world (x, -z) after prism()'s rotation.
+      const shape = new THREE.Shape(f.pts.map(([x, z]) => new THREE.Vector2(x, -z)));
+      const minH = f.minH ?? 0;
+      const roofH = f.roof === "pyramidal" ? (f.roofH ?? 0) : 0;
+      const parts: THREE.BufferGeometry[] = [prism(shape, Math.max(1, f.h - minH - roofH), minH)];
+      const tint = (f.name && TINTS[f.name]) || DEFAULT_TINT;
+      for (const p of parts) {
+        if (!isMast(f)) edges.push(new THREE.EdgesGeometry(p, 35));
+        geos.push(withAttributes(p, seed, crown, accent, tint));
+      }
+      // Pyramid roofs (Messeturm) are floodlit at night.
+      if (roofH > 0) geos.push(withAttributes(pyramidRoof(f.pts, f.h - roofH, f.h), seed, crown, accent, LIT_ROOF));
+
+      const c = footprintCentre(f.pts);
+      const r = Math.max(...f.pts.map(([x, z]) => Math.hypot(x - c.x, z - c.y)));
+      this.landmarkFootprints.push({ p: c, r: r + 14 });
+      if (!tower && f.h >= 150) tips.push(c.x, f.h + 1, c.y);
+    });
+
+    for (const [name, { body, tip }] of towers) {
+      const c = footprintCentre(body.pts);
+      this.landmarkPositions.set(name, new THREE.Vector3(c.x, body.h, c.y));
+      const t = footprintCentre(tip.pts);
+      if (tip.h >= 120) tips.push(t.x, tip.h + 1, t.y);
+    }
   }
 
   private distanceToRiver(x: number, z: number) {
@@ -826,10 +853,10 @@ export class City {
           side(true, 1);
           side(false, -1);
           side(false, 1);
-          // Occasional mid-rise office tower near the centre.
-          if (rand() < cbd * 0.55) {
+          // Occasional mid-rise near the centre; everything >= 60 m is real (skyline.json).
+          if (rand() < cbd * 0.25) {
             const s = 22 + rand() * 18;
-            add(cu + (rand() - 0.5) * 20, cv + (rand() - 0.5) * 20, s, s * (0.7 + rand() * 0.5), 45 + rand() * 80 * cbd);
+            add(cu + (rand() - 0.5) * 20, cv + (rand() - 0.5) * 20, s, s * (0.7 + rand() * 0.5), 30 + rand() * 24);
           }
         } else {
           // Detached houses / small slabs.
@@ -854,6 +881,7 @@ export class City {
     geo.setAttribute("aSeed", new THREE.InstancedBufferAttribute(new Float32Array(seeds), 1));
     geo.setAttribute("aTop", new THREE.InstancedBufferAttribute(new Float32Array(tops), 1));
     geo.setAttribute("aAccent", new THREE.InstancedBufferAttribute(new Float32Array(seeds.length * 3), 3));
+    geo.setAttribute("aTint", new THREE.InstancedBufferAttribute(new Float32Array(seeds.length * 3), 3));
     const mesh = new THREE.InstancedMesh(geo, this.buildingMaterial(), matrices.length);
     matrices.forEach((m, i) => mesh.setMatrixAt(i, m));
     mesh.frustumCulled = false;

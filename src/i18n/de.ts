@@ -27,7 +27,6 @@ export const de: Translations = {
     body: 'Wir sind stolz darauf, Lösungen für führende Unternehmen in verschiedenen Branchen implementiert zu haben. Unser Engagement für Qualität und Kundenzufriedenheit macht uns zu einem zuverlässigen Partner.',
   },
   services: {
-    eyebrow: 'Von der Skyline zum Stack',
     heading: 'UNSERE LEISTUNGEN',
     body: 'Wir entwickeln individuelle Softwarelösungen und bieten IT-Beratung mit modernen Technologien. Als Frankfurter Softwareunternehmen unterstützen wir Mittelstandsunternehmen bei der Digitalisierung und helfen Ihnen, Ihre Geschäftsziele zu erreichen.',
     webDev: {

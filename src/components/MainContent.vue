@@ -245,33 +245,37 @@ const heroOut = computed(() => {
     <section :ref="(el) => (els.services = el as HTMLElement)" class="relative h-[420svh]">
       <div class="pointer-events-none sticky top-0 h-svh overflow-hidden">
         <div class="scrim scrim--left" :style="{ opacity: envelope(progress.services) }"></div>
-        <div class="chapter-text md:top-[16svh] md:bottom-auto">
-          <p class="eyebrow" :style="{ opacity: envelope(progress.services) }">03 — {{ t.services.eyebrow }}</p>
-          <KineticText tag="h2" class="chapter-heading" :text="t.services.heading" :progress="progress.services" :exit="0.9" />
-          <p class="chapter-body hidden md:block" :style="{ opacity: envelope(progress.services) }">{{ t.services.body }}</p>
+        <div class="chapter-text">
+          <!-- Chapter label + lead stay quiet; the current service is the one heading. -->
+          <h2 class="eyebrow" :style="{ opacity: envelope(progress.services) }">03 — {{ t.services.heading }}</h2>
+          <p class="services-lead hidden md:block" :style="{ opacity: envelope(progress.services) }">{{ t.services.body }}</p>
+
+          <div class="mt-8 flex items-center gap-4 font-mono text-xs tracking-[0.2em] md:mt-10" :style="{ opacity: envelope(progress.services) }">
+            <span class="tabular-nums text-cyan-200">
+              {{ String(activeService + 1).padStart(2, "0") }} <span class="text-gray-500">/ 03</span>
+            </span>
+            <span class="flex gap-1.5">
+              <span v-for="k in 3" :key="k" class="relative h-0.5 w-8 overflow-hidden bg-white/15">
+                <span class="absolute inset-y-0 left-0 bg-cyan-300" :style="{ width: `${clamp(serviceStep + 1 - (k - 1)) * 100}%` }"></span>
+              </span>
+            </span>
+          </div>
 
           <!-- One service per tower -->
-          <div class="relative mt-6 min-h-[17rem] md:mt-8 md:min-h-[16rem]">
+          <!-- Services stacked in one grid cell: the block is as tall as the longest one. -->
+          <div class="mt-3 grid">
             <article
               v-for="(s, k) in services"
               :key="k"
-              class="absolute inset-x-0 top-0"
+              class="[grid-area:1/1]"
               :style="{
                 opacity: serviceVisibility(k),
                 transform: `translate3d(0, ${(serviceStep - k) * -40}px, 0)`,
               }"
               :aria-hidden="activeService !== k">
-              <p class="font-mono text-sm tracking-[0.2em] text-cyan-200">
-                {{ String(k + 1).padStart(2, "0") }} <span class="text-gray-500">/ 03</span>
-              </p>
-              <h3 class="text-primary mt-2 text-2xl font-semibold tracking-wide md:text-4xl">{{ s.title }}</h3>
-              <p class="chapter-body mt-3">{{ s.body }}</p>
+              <h3 class="service-title">{{ s.title }}</h3>
+              <p class="chapter-body mt-4">{{ s.body }}</p>
             </article>
-          </div>
-          <div class="mt-4 flex gap-2" :style="{ opacity: envelope(progress.services) }">
-            <span v-for="k in 3" :key="k" class="relative h-0.5 w-12 overflow-hidden bg-white/15">
-              <span class="absolute inset-y-0 left-0 bg-cyan-300" :style="{ width: `${clamp(serviceStep + 1 - (k - 1)) * 100}%` }"></span>
-            </span>
           </div>
         </div>
         <div class="absolute inset-x-0 top-20 md:bottom-28 md:top-auto" :style="{ opacity: envelope(progress.services) }">
@@ -345,6 +349,22 @@ const heroOut = computed(() => {
   letter-spacing: -0.03em;
   color: white;
   text-shadow: 0 2px 30px rgb(0 0 0 / 0.6);
+}
+.service-title {
+  font-size: clamp(1.9rem, 3.4vw, 3.1rem);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: white;
+  text-shadow: 0 2px 30px rgb(0 0 0 / 0.6);
+}
+.services-lead {
+  max-width: 28rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-weight: 300;
+  color: rgb(156 163 175);
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.8);
 }
 .chapter-body {
   margin-top: 1.25rem;

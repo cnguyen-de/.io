@@ -25,7 +25,6 @@ export const en = {
     body: 'We are proud to have helped implement solutions for leading companies across various sectors. Our commitment to excellence and customer satisfaction has made us a valuable partner to our clients.',
   },
   services: {
-    eyebrow: 'From skyline to stack',
     heading: 'OUR SERVICES',
     body: 'We work with a broad range of modern technologies to build solutions that meet your specific requirements. Our technical expertise allows us to deliver reliable, maintainable software that supports your business objectives.',
     webDev: {
