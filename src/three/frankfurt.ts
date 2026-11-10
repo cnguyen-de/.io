@@ -98,17 +98,12 @@ export const RIVER_WIDTH = 170;
 export const BRIDGES = [8.6664, 8.6748, 8.6828, 8.69, 8.6955, 8.711];
 
 /**
- * Client locations for the "trusted by" data arcs. The arcs only need to point the right way —
- * they vanish over the horizon; each client's name rides on its arc as a clickable chip.
+ * Besides one arc per client (src/data/clients.ts), a few arcs head for other cities. They only
+ * need to point the right way — all of them vanish over the horizon.
  */
-export const CLIENT_LINKS: { client?: string; href?: string; lat: number; lon: number }[] = [
-  { client: "SOKA-BAU", href: "https://www.soka-bau.de/", lat: 50.0826, lon: 8.24 },
-  { client: "Bilfinger", href: "https://www.bilfinger.com/", lat: 49.4875, lon: 8.466 },
-  { client: "Mercedes-Benz.io", href: "https://www.mercedes-benz.io/", lat: 48.7758, lon: 9.1829 },
-  { client: "LBBW", href: "https://www.lbbw.de", lat: 48.7858, lon: 9.4829 },
-  { client: "GitLab", href: "https://gitlab.com/", lat: 53.55, lon: 9.99 },
-  { lat: 52.52, lon: 13.405 },
-  { lat: 51.5072, lon: -0.1276 },
+export const ARC_CITIES: [lat: number, lon: number][] = [
+  [52.52, 13.405],
+  [51.5072, -0.1276],
 ];
 
 /** Cities the globe arcs connect Frankfurt to during the intro. */

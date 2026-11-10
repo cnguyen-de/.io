@@ -161,14 +161,16 @@ export class Experience {
     this.shots = [
       // hero: bird's-eye view over the banking district, the Main in the foreground
       { pos: m ? v(650, 1500, 2200) : v(750, 950, 1350), target: m ? v(0, 0, -250) : v(-80, 0, -200), tech: 0, arcs: 0, drift: 1 },
-      // location: aerial view with the HQ beacon to the north
-      { pos: m ? v(900, 2300, 2600) : v(3400, 2500, 1500), target: m ? v(500, 0, -2300) : v(-300, 0, -2500), tech: 0, arcs: 0, drift: 0.4 },
+      // location: from south of the Main, the skyline against the night sky and the HQ beacon behind it
+      { pos: m ? v(300, 500, 3600) : v(1200, 800, 4200), target: m ? v(350, -136, -200) : v(1252, 640, -800), tech: 0, arcs: 0, drift: 0.3 },
       // trusted: data arcs from the skyline to clients
       { pos: m ? v(7600, 800, 1600) : v(5600, 700, 1900), target: m ? v(-600, 100, 300) : v(-600, 600, 1150), tech: 0.15, arcs: 1, drift: 0.4 },
       // services: the city turns into a hologram; the camera visits one tower per service
       ...SERVICE_TOWERS.map((name, i) => this.towerShot(name, [0.75, 0.15, -0.55][i])),
-      // contact: the HQ beacon
-      { pos: m ? v(hq.x - 500, 300, hq.z + 1700) : v(hq.x - 1100, 380, hq.z + 1300), target: m ? v(hq.x, 520, hq.z) : v(hq.x - 450, 420, hq.z), tech: 0, arcs: 0.1, drift: 0.6 },
+      // stack: back over the Main, the whole holographic skyline above the technology list
+      { pos: m ? v(500, 620, 2500) : v(520, 520, 2350), target: m ? v(-150, -500, -300) : v(-150, -420, -300), tech: 1, arcs: 0.06, drift: 0.9 },
+      // contact: the HQ beacon, the moon to its left (little drift on phones, or the two would cross)
+      { pos: m ? v(hq.x - 560, 300, hq.z + 1700) : v(hq.x - 1100, 380, hq.z + 1300), target: m ? v(hq.x, 520, hq.z) : v(hq.x - 450, 420, hq.z), tech: 0, arcs: 0.1, drift: m ? 0.25 : 0.6 },
     ];
     this.camPos.copy(this.shots[0].pos);
     this.camTarget.copy(this.shots[0].target);
@@ -239,6 +241,11 @@ export class Experience {
   /** Easter egg: send a plane across the sky of the current view (ignored while one is flying). */
   flyPlane() {
     if (this.phase === "city" && !this.plane.flying) this.plane.fly(this.camera);
+  }
+
+  /** Single out one client's arc (index into CLIENTS); -1 for none. */
+  setActiveClient(i: number) {
+    this.city.setActiveClient(i);
   }
 
   setPointer(x: number, y: number) {
@@ -437,7 +444,7 @@ export class Experience {
     U.uArcs.value = this.params.arcs;
     U.uFocus.value.copy(this.focusPos);
     U.uFocusAmt.value = this.params.focus;
-    this.city.update(cam);
+    this.city.update(cam, dt);
     this.plane.update(dt, this.time);
 
     this.bloom.strength = lerp(0.75, 1.0, this.params.tech);

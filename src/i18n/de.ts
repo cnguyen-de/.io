@@ -11,10 +11,13 @@ export const de: Translations = {
     location: 'Frankfurt',
     trusted: 'Kunden',
     services: 'Leistungen',
+    stack: 'Technologien',
     contact: 'Kontakt',
   },
   hero: {
     tagline: 'EXZELLENZ. EXPERTISE. EFFIZIENZ.',
+    descriptor: 'Individuelle Software – skalierbar für',
+    descriptorStrong: 'Hunderte Millionen Nutzer.',
   },
   location: {
     eyebrow: 'Hauptsitz',
@@ -23,23 +26,64 @@ export const de: Translations = {
   },
   trusted: {
     hint: 'Jeder Bogen führt zu einem Kunden — folgen Sie einem.',
-    heading: 'UNSERE ARBEIT WIRD VERTRAUT VON',
-    body: 'Wir sind stolz darauf, Lösungen für führende Unternehmen in verschiedenen Branchen implementiert zu haben. Unser Engagement für Qualität und Kundenzufriedenheit macht uns zu einem zuverlässigen Partner.',
+    heading: 'Uns vertrauen',
+    body: 'Wir sind stolz darauf, Lösungen für führende Unternehmen in verschiedenen Branchen umgesetzt zu haben.',
+    sectors: {
+      sokaBau: 'Sozialkasse · Versicherung',
+      mercedesBenzIo: 'Automobil',
+      lbbw: 'Banken & Finanzen',
+      gitlab: 'DevOps-Plattform',
+      bilfinger: 'Industriedienstleistungen',
+      thinkcell: 'Technologie',
+    },
   },
   services: {
     heading: 'UNSERE LEISTUNGEN',
-    body: 'Wir entwickeln individuelle Softwarelösungen und bieten IT-Beratung mit modernen Technologien. Als Frankfurter Softwareunternehmen unterstützen wir Mittelstandsunternehmen bei der Digitalisierung und helfen Ihnen, Ihre Geschäftsziele zu erreichen.',
+    method: 'Agile Umsetzung — kurze Iterationen, früh lauffähige Software, Pläne, die sich anpassen.',
+    reference: 'Referenz',
     webDev: {
       title: 'WEBENTWICKLUNG',
-      body: 'Wir entwickeln maßgeschneiderte Weblösungen mit modernsten Technologien. Von der Konzeption bis zur Umsetzung liefern wir skalierbare, sichere und performante Webapplikationen für Ihr Unternehmen.',
+      claim: 'Webplattformen, ausgelegt für Hunderte Millionen Nutzer.',
+      body: 'Wir konzipieren und entwickeln Webanwendungen und Onlineshops von Anfang bis Ende – Oberfläche, API, Datenbank und die Pipeline, die sie ausliefert. Gebaut für den Betrieb, nicht nur für den Launch.',
+      reference: 'Frontend-Lead für den Onlineshop von Mercedes\u2011Benz',
+      rows: [
+        ['Oberflächen', 'Vue · React · Angular · Next.js'],
+        ['APIs & Services', 'Node.js · Spring Boot · Python'],
+        ['Auslieferung', 'Docker · Kubernetes · Helm'],
+      ],
     },
     consulting: {
       title: 'IT-BERATUNG',
-      body: 'Als erfahrene IT-Berater in Frankfurt unterstützen wir Sie bei der digitalen Transformation Ihres Unternehmens. Wir bieten strategische Beratung, Planung und Umsetzungsbegleitung für Ihren Projekterfolg.',
+      claim: 'Architektur, entworfen von denen, die sie anschließend bauen.',
+      body: 'Wir entwerfen Systemarchitekturen, die mit dem Traffic mitwachsen, prüfen Bestehendes – und bleiben, um das Empfohlene umzusetzen.',
+      reference: 'Architektur & Umsetzung für zahlreiche Unternehmen',
+      rows: [
+        ['Entwerfen', 'System- & Softwarearchitektur'],
+        ['Prüfen', 'Architektur, Code, Delivery-Pipeline'],
+        ['Umsetzen', 'Hands-on, Seite an Seite mit Ihrem Team'],
+      ],
     },
-    agility: {
-      title: 'AGILITÄT',
-      body: 'Unser agiler Entwicklungsansatz ermöglicht eine schnelle und flexible Lieferung hochwertiger Softwarelösungen. Wir passen uns Ihren Anforderungen an und halten Ihr Projekt auf Kurs.',
+    ai: {
+      title: 'KI & VISION',
+      claim: 'Modelle, die das Notebook verlassen und in Produktion gehen.',
+      body: 'Wir entwickeln Machine-Learning- und Computer-Vision-Funktionen und binden sie in das Produkt ein, zu dem sie gehören.',
+      reference: 'State-of-the-Art-KI für thinkcell',
+      rows: [
+        ['Modelle', 'TensorFlow · PyTorch'],
+        ['Bildverarbeitung', 'OpenCV'],
+        ['Video-Pipelines', 'FFmpeg'],
+      ],
+    },
+  },
+  stack: {
+    heading: 'Technologien, mit denen wir arbeiten',
+    body: 'Wir arbeiten mit einem breiten Spektrum moderner Technologien und wählen für jede Anforderung das passende Werkzeug – für zuverlässige, wartbare Software, die Ihre Geschäftsziele unterstützt.',
+    groups: {
+      frontend: 'Frontend',
+      backend: 'Backend',
+      data: 'Daten',
+      cloud: 'Cloud & DevOps',
+      ai: 'KI & Medien',
     },
   },
   contact: {

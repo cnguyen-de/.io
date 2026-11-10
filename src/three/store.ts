@@ -10,6 +10,10 @@ export const sceneState = reactive({
   shot: 0,
   /** Text of the label floating over the focused tower (services tour). */
   focusLabel: "",
+  /** Index (into CLIENTS) of the client singled out on the page and in the scene; -1 for none. */
+  activeClient: -1,
+  /** Client under the pointer / keyboard focus, in the list or on an arc; -1 for none. */
+  hoverClient: -1,
   /** Incremented to send the easter-egg plane across the sky. */
   planeFlights: 0,
 });

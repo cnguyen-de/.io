@@ -1,8 +1,9 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { CLIENTS } from "../data/clients";
 import {
+  ARC_CITIES,
   BRIDGES,
-  CLIENT_LINKS,
   HQ,
   LANDMARKS,
   RIVER,
@@ -11,7 +12,7 @@ import {
   type Landmark,
 } from "./frankfurt";
 import SKYLINE from "./skyline.json";
-import { mulberry32 } from "./utils";
+import { damp, mulberry32 } from "./utils";
 
 /** Street grid shared by the ground shader, the block generator and traffic. */
 const GRID_ANGLE = 0.32;
@@ -67,7 +68,9 @@ export interface CityUniforms {
 }
 
 const FOG_COLOR = new THREE.Color(0.035, 0.045, 0.085);
-const FOG_DENSITY = 0.00012;
+/** Low in the north-north-east: over the HQ in the closing shot, and lighting the roofs from behind. */
+const MOON_DIR = new THREE.Vector3(0.19, 0.26, -0.95).normalize();
+const FOG_DENSITY = 0.0001;
 
 const commonGlsl = /* glsl */ `
   uniform float uTime;
@@ -161,6 +164,8 @@ const buildingFragment = /* glsl */ `
     // Towers keep their own facade colour (dark blue glass, granite, …) with a hint of sky reflection.
     vec3 glass = vTint * (0.8 + 0.4 * clamp(h / vTop, 0.0, 1.0)) + vec3(0.012, 0.016, 0.03) * fres * wall;
     vec3 col = mix(concrete, glass, lm) * diff;
+    // Moonlight: roofs catch a cool sheen, so blocks read as volumes against the dark ground.
+    col += vec3(0.013, 0.019, 0.036) * (1.0 - wall) * (1.0 - 0.5 * lm);
 
     // Facade coordinates: horizontal distance along the wall, vertical floors.
     vec2 tangent = normalize(vec2(-n.z, n.x) + 1e-5);
@@ -224,6 +229,7 @@ function makeUniforms(pixelRatio: number): CityUniforms & Record<string, THREE.I
     uPixelRatio: { value: pixelRatio },
     uFocus: { value: new THREE.Vector3() },
     uFocusAmt: { value: 0 },
+    uArcDim: { value: 0 },
     uFogColor: { value: FOG_COLOR },
     uFogDensity: { value: FOG_DENSITY },
   };
@@ -412,6 +418,8 @@ export class City {
   private riverSamples: THREE.Vector2[] = [];
   private landmarkFootprints: { p: THREE.Vector2; r: number }[] = [];
   private sky: THREE.Mesh;
+  private arcHot: { value: number }[] = [];
+  private activeClient = -1;
 
   constructor(pixelRatio: number, lowPower: boolean) {
     this.uniforms = makeUniforms(pixelRatio);
@@ -439,6 +447,7 @@ export class City {
     const sky = new THREE.Mesh(
       new THREE.SphereGeometry(30000, 32, 16),
       this.shader({
+        uniforms: { ...this.uniforms, uMoonDir: { value: MOON_DIR } },
         side: THREE.BackSide,
         depthWrite: false,
         vertexShader: /* glsl */ `
@@ -449,19 +458,70 @@ export class City {
           }`,
         fragmentShader: /* glsl */ `
           ${commonGlsl}
+          uniform vec3 uMoonDir;
           varying vec3 vDir;
-          void main() {
-            float y = vDir.y;
-            vec3 zenith = vec3(0.004, 0.007, 0.02);
-            vec3 col = mix(horizonColor(vDir), zenith, smoothstep(0.0, 0.5, y));
-            // stars
-            vec2 sp = vec2(atan(vDir.z, vDir.x) * 260.0, y * 260.0);
-            vec2 id = floor(sp);
-            float s = hash12(id);
+          float vnoise(vec2 p) {
+            vec2 i = floor(p), f = fract(p);
+            f = f * f * (3.0 - 2.0 * f);
+            return mix(mix(hash12(i), hash12(i + vec2(1.0, 0.0)), f.x),
+                       mix(hash12(i + vec2(0.0, 1.0)), hash12(i + vec2(1.0, 1.0)), f.x), f.y);
+          }
+          float fbm(vec2 p) {
+            float s = 0.0, a = 0.5;
+            for (int i = 0; i < 4; i++) { s += a * vnoise(p); p = p * 2.03 + 17.1; a *= 0.5; }
+            return s;
+          }
+          float starLayer(vec2 sp, float threshold, float size) {
+            float s = hash12(floor(sp));
             vec2 f = fract(sp) - 0.5;
-            float star = step(0.985, s) * smoothstep(0.25, 0.0, length(f)) * smoothstep(0.05, 0.3, y);
-            star *= 0.6 + 0.4 * sin(uTime * (1.0 + s * 3.0) + s * 50.0);
-            col += vec3(0.8, 0.9, 1.0) * star * (1.0 - uTech * 0.5);
+            float tw = 0.6 + 0.4 * sin(uTime * (1.0 + s * 3.0) + s * 50.0);
+            return step(threshold, s) * smoothstep(size, 0.0, length(f)) * tw;
+          }
+          void main() {
+            vec3 dir = normalize(vDir);
+            float y = dir.y;
+            float night = 1.0 - uTech * 0.5;
+            vec3 zenith = vec3(0.004, 0.007, 0.02);
+            vec3 col = mix(horizonColor(dir), zenith, smoothstep(0.0, 0.5, y));
+            float above = smoothstep(0.03, 0.3, y);
+
+            // Milky Way: a faint dusty band crossing the western sky, with a denser field of small stars.
+            vec2 dome = dir.xz / (0.35 + max(y, 0.0));
+            float band = exp(-pow(dot(dir, normalize(vec3(0.135, 0.75, 0.5))) * 5.0, 2.0));
+            float dust = fbm(dome * 5.0);
+            col += (vec3(0.045, 0.05, 0.095) * dust + vec3(0.05, 0.03, 0.06) * smoothstep(0.5, 0.9, dust)) * band * above * night;
+
+            // Stars: a sparse bright layer and a fine one that thickens inside the band.
+            vec2 sp = vec2(atan(dir.z, dir.x), y) * 260.0;
+            float stars = starLayer(sp, 0.985, 0.25) + starLayer(sp * 2.3 + 40.0, 0.992 - 0.02 * band, 0.2) * 0.55;
+            col += vec3(0.8, 0.9, 1.0) * stars * above * night;
+
+            // Thin haze drifting above the horizon, catching the glow of the city.
+            float haze = smoothstep(0.42, 0.85, fbm(dome * 1.6 + vec2(uTime * 0.004, 0.0)));
+            col += vec3(0.05, 0.04, 0.075) * haze * exp(-max(y, 0.0) * 7.0) * smoothstep(0.0, 0.06, y);
+
+            // Crescent moon with a soft halo.
+            float md = dot(dir, uMoonDir);
+            float disc = smoothstep(0.99972, 0.99984, md);
+            float shadow = smoothstep(0.99962, 0.99978, dot(dir, normalize(uMoonDir + vec3(0.011, 0.007, 0.0))));
+            float craters = 0.82 + 0.18 * vnoise(dir.xy * 900.0);
+            col += vec3(1.0, 0.96, 0.86) * disc * (1.0 - 0.94 * shadow) * craters * 1.5 * night;
+            col += vec3(0.5, 0.62, 1.0) * (pow(max(md, 0.0), 1500.0) * 0.16 + pow(max(md, 0.0), 90.0) * 0.035) * night;
+
+            // Every few seconds a shooting star crosses a random part of the sky.
+            float period = 6.0;
+            float k = floor(uTime / period);
+            float life = fract(uTime / period) * period / 0.9;        // visible for 0.9 s
+            if (life < 1.0) {
+              vec3 from = normalize(vec3(hash12(vec2(k, 1.3)) * 2.0 - 1.0, 0.25 + 0.45 * hash12(vec2(k, 7.7)), hash12(vec2(k, 4.1)) * 2.0 - 1.0));
+              vec3 to = normalize(from + vec3(hash12(vec2(k, 9.2)) - 0.5, -0.22, hash12(vec2(k, 5.5)) - 0.5) * 0.7);
+              vec3 head = normalize(mix(from, to, life));
+              vec3 tail = normalize(mix(from, to, max(life - 0.3, 0.0)));
+              vec3 seg = head - tail;
+              float h = clamp(dot(dir - tail, seg) / max(dot(seg, seg), 1e-6), 0.0, 1.0);
+              float d = length(dir - (tail + seg * h));
+              col += vec3(0.85, 0.93, 1.0) * smoothstep(0.0022, 0.0, d) * h * h * sin(life * 3.14159) * 1.6 * night;
+            }
             gl_FragColor = vec4(col, 1.0);
           }`,
       }),
@@ -1048,18 +1108,17 @@ export class City {
     const arcs: [THREE.Vector3, THREE.Vector3, number][] = [];
     // Client arcs fan out westwards (away from the "clients" camera) so every name gets its own
     // spot in the sky; the remaining arcs point at real cities.
-    const clients = CLIENT_LINKS.filter((c) => c.client);
-    clients.forEach((c, i) => {
-      const phi = THREE.MathUtils.degToRad(70 - (140 * i) / Math.max(1, clients.length - 1));
+    CLIENTS.forEach((c, i) => {
+      const phi = THREE.MathUtils.degToRad(70 - (140 * i) / Math.max(1, CLIENTS.length - 1));
       const end = new THREE.Vector3(-Math.cos(phi), 0, Math.sin(phi)).multiplyScalar(14000).add(cbd).setY(-400);
-      const lift = 2200 + (i % 2) * 700;
+      const lift = 2200 + (i % 2) * 1300; // alternate heights keep neighbouring names apart
       arcs.push([cbd, end, lift]);
       const mid = cbd.clone().lerp(end, 0.5).setY(Math.max(cbd.y, end.y) + lift);
       const at = new THREE.QuadraticBezierCurve3(cbd, mid, end).getPoint(0.11);
-      this.labels.push({ name: c.client!, position: at, href: c.href! });
+      this.labels.push({ name: c.name, position: at, href: c.href });
     });
-    for (const c of CLIENT_LINKS.filter((l) => !l.client)) {
-      const [x, z] = toLocal(c.lat, c.lon);
+    for (const [lat, lon] of ARC_CITIES) {
+      const [x, z] = toLocal(lat, lon);
       arcs.push([cbd, new THREE.Vector3(x, 0, z).normalize().multiplyScalar(16000).setY(-400), 2600]);
     }
     for (const name of ["Messeturm", "Main Tower", "EZB", "Westend Tower", "Europaturm", "Tower 185"]) {
@@ -1070,11 +1129,14 @@ export class City {
     arcs.forEach(([a, b, lift], i) => {
       const mid = a.clone().lerp(b, 0.5).setY(Math.max(a.y, b.y) + lift);
       const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
-      const geo = new THREE.TubeGeometry(curve, 96, i < CLIENT_LINKS.length ? 7 : 4, 6, false);
+      const geo = new THREE.TubeGeometry(curve, 96, i < CLIENTS.length + ARC_CITIES.length ? 7 : 4, 6, false);
+      // Client arcs can be singled out (see setActiveClient); every other arc only ever dims.
+      const hot = { value: 0 };
+      if (i < CLIENTS.length) this.arcHot.push(hot);
       const mesh = new THREE.Mesh(
         geo,
         this.shader({
-          uniforms: { ...this.uniforms, uOffset: { value: i * 0.173 } },
+          uniforms: { ...this.uniforms, uOffset: { value: i * 0.173 }, uHot: hot },
           transparent: true,
           depthWrite: false,
           blending: THREE.AdditiveBlending,
@@ -1083,13 +1145,21 @@ export class City {
             ${commonGlsl}
             uniform float uArcs;
             uniform float uOffset;
+            uniform float uHot;
+            uniform float uArcDim;
             varying float vT; varying vec3 vWorld;
             void main() {
               float head = fract(uTime * 0.22 + uOffset) * 1.5 - 0.25;
               float trail = smoothstep(head - 0.3, head, vT) * step(vT, head);
               float fog = exp(-length(vWorld - cameraPosition) * 0.00006);
-              float a = (0.06 + trail * 0.75) * uArcs * fog;
+              // The active client's arc glows along its whole length, with a pulse running outwards.
+              float pulse = 0.5 + 0.5 * sin(vT * 40.0 - uTime * 5.0);
+              float a = (0.06 + trail * 0.75) * (1.0 - 0.7 * uArcDim * (1.0 - uHot));
+              a += uHot * (0.3 + 0.25 * pulse);
+              // Fade right in front of the lens, so a passing pulse never fills the frame.
+              a *= uArcs * fog * smoothstep(250.0, 1400.0, length(vWorld - cameraPosition));
               vec3 c = mix(vec3(0.3, 0.8, 1.0), vec3(1.0, 0.8, 0.5), step(0.5, fract(uOffset * 3.0)));
+              c = mix(c, vec3(1.0, 0.82, 0.5), uHot);
               gl_FragColor = vec4(c * a, 1.0);
             }`,
         }),
@@ -1147,7 +1217,15 @@ export class City {
     this.scene.add(pts);
   }
 
-  update(camera: THREE.Camera) {
+  /** Single out one client's arc (index into CLIENTS); -1 for none. */
+  setActiveClient(i: number) {
+    this.activeClient = i;
+  }
+
+  update(camera: THREE.Camera, dt: number) {
     this.sky.position.copy(camera.position);
+    this.arcHot.forEach((u, i) => (u.value = damp(u.value, i === this.activeClient ? 1 : 0, 7, dt)));
+    const dim = this.uniforms.uArcDim;
+    dim.value = damp(dim.value, this.activeClient >= 0 ? 1 : 0, 7, dt);
   }
 }

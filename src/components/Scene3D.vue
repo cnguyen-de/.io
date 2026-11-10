@@ -29,6 +29,11 @@ watch(
 );
 
 watch(
+  () => sceneState.activeClient,
+  (i) => experience?.setActiveClient(i),
+);
+
+watch(
   () => sceneState.planeFlights,
   () => experience?.flyPlane(),
 );
@@ -101,7 +106,8 @@ const fmt = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(4)}Â
 </script>
 
 <template>
-  <div aria-hidden="true" class="pointer-events-none fixed inset-0 -z-10 h-lvh w-full">
+  <!-- z-0 (not negative): below the page content, but above <body>, so the client chips can be clicked. -->
+  <div aria-hidden="true" class="pointer-events-none fixed inset-0 z-0 h-lvh w-full">
     <div
       v-if="!sceneState.webgl"
       class="absolute inset-0 bg-[url('/hero.webp')] bg-cover bg-center bg-no-repeat blur-3xl"></div>
@@ -117,7 +123,10 @@ const fmt = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(4)}Â
       rel="noopener noreferrer"
       tabindex="-1"
       class="scene-label scene-label--client absolute left-0 top-0"
-      style="visibility: hidden; opacity: 0">
+      :class="{ 'is-active': sceneState.activeClient === i, 'is-dim': sceneState.activeClient >= 0 && sceneState.activeClient !== i }"
+      style="visibility: hidden; opacity: 0"
+      @pointerenter="sceneState.hoverClient = i"
+      @pointerleave="sceneState.hoverClient = -1">
       <span class="scene-label__dot"></span>
       <span class="scene-label__text">{{ label.name }}</span>
     </a>
@@ -190,13 +199,26 @@ const fmt = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(4)}Â
   border-color: rgb(253 230 138 / 0.5);
   color: rgb(254 243 199);
   box-shadow: 0 0 30px rgb(251 191 36 / 0.25);
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.3s,
+    background 0.3s,
+    box-shadow 0.3s,
+    opacity 0.3s;
+}
+.scene-label--client.is-dim .scene-label__text {
+  opacity: 0.75;
+}
+.scene-label--client.is-active .scene-label__text {
+  border-color: rgb(253 230 138);
+  background: rgb(120 53 15 / 0.55);
+  box-shadow: 0 0 44px rgb(251 191 36 / 0.55);
 }
 .scene-label--client .scene-label__dot {
   background: rgb(253 230 138);
   box-shadow: 0 0 12px 2px rgb(251 191 36 / 0.8);
 }
-@media (max-width: 767px) {
+/* The chips need room next to the client list; without it the list alone carries the names. */
+@media (max-width: 1099px) {
   .scene-label--client {
     display: none;
   }
@@ -204,6 +226,12 @@ const fmt = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(4)}Â
 .scene-label--client:hover .scene-label__text {
   border-color: rgb(253 230 138);
   background: rgb(120 53 15 / 0.5);
+}
+/* On phones the service text reaches up to the tower; the tabs already name the service. */
+@media (max-width: 767px) {
+  .scene-label--focus {
+    display: none;
+  }
 }
 .scene-label--focus .scene-label__text {
   bottom: 0;

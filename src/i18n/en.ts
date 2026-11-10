@@ -9,10 +9,14 @@ export const en = {
     location: 'Frankfurt',
     trusted: 'Clients',
     services: 'Services',
+    stack: 'Technologies',
     contact: 'Contact',
   },
   hero: {
     tagline: 'EXCELLENCE. EXPERTISE. EFFICIENCY.',
+    // One sentence in two parts; the second is emphasised.
+    descriptor: 'Custom software that scales to',
+    descriptorStrong: 'hundreds of millions of users.',
   },
   location: {
     eyebrow: 'Headquarters',
@@ -21,23 +25,65 @@ export const en = {
   },
   trusted: {
     hint: 'Every arc leads to a client — follow one.',
-    heading: 'OUR WORKS HAVE BEEN TRUSTED BY',
-    body: 'We are proud to have helped implement solutions for leading companies across various sectors. Our commitment to excellence and customer satisfaction has made us a valuable partner to our clients.',
+    heading: 'Trusted by',
+    body: 'We are proud to have helped implement solutions for leading companies across various sectors.',
+    sectors: {
+      sokaBau: 'Social fund · Insurance',
+      mercedesBenzIo: 'Automotive',
+      lbbw: 'Banking & finance',
+      gitlab: 'DevOps platform',
+      bilfinger: 'Industrial services',
+      thinkcell: 'Technology',
+    },
   },
   services: {
     heading: 'OUR SERVICES',
-    body: 'We work with a broad range of modern technologies to build solutions that meet your specific requirements. Our technical expertise allows us to deliver reliable, maintainable software that supports your business objectives.',
+    // How we work, shown under every service.
+    method: 'Agile delivery — short iterations, working software early, plans that adapt.',
+    reference: 'Reference',
     webDev: {
       title: 'WEB DEVELOPMENT',
-      body: 'We offer tailored solutions using the latest technologies and best practices. We deliver high-quality, scalable, and secure web solutions to help drive your business forward.',
+      claim: 'Web platforms engineered for hundreds of millions of users.',
+      body: 'We design and build web applications and online shops end to end — interface, API, database and the pipeline that ships them — to be run, not just launched.',
+      reference: 'Frontend lead for the Mercedes\u2011Benz online shop',
+      rows: [
+        ['Interfaces', 'Vue · React · Angular · Next.js'],
+        ['APIs & services', 'Node.js · Spring Boot · Python'],
+        ['Delivery', 'Docker · Kubernetes · Helm'],
+      ],
     },
     consulting: {
       title: 'CONSULTING',
-      body: 'We provide expert guidance to help you navigate the complexities of technology and achieve your business objectives. We offer strategic advice, planning and implementation support to ensure your project is optimized for success.',
+      claim: 'Architecture designed by the people who then build it.',
+      body: 'We design system architecture that holds as traffic grows, review what already exists — and stay to implement what we recommend.',
+      reference: 'Architecture design and implementation for numerous companies',
+      rows: [
+        ['Design', 'System & software architecture'],
+        ['Review', 'Architecture, code, delivery pipeline'],
+        ['Deliver', 'Hands-on, alongside your team'],
+      ],
     },
-    agility: {
-      title: 'AGILITY',
-      body: 'Our agile development approach ensures fast and flexible delivery of high-quality software solutions. We adapt to your needs and changes quickly, ensuring your project stays on track and meets your business goals.',
+    ai: {
+      title: 'AI & VISION',
+      claim: 'Models that leave the notebook and reach production.',
+      body: 'We build machine-learning and computer-vision features and wire them into the product around them.',
+      reference: 'State-of-the-art AI for thinkcell',
+      rows: [
+        ['Models', 'TensorFlow · PyTorch'],
+        ['Vision', 'OpenCV'],
+        ['Video pipelines', 'FFmpeg'],
+      ],
+    },
+  },
+  stack: {
+    heading: 'Technologies we build with',
+    body: 'We work with a broad range of modern technologies and pick the right tool for each requirement — for reliable, maintainable software that supports your business objectives.',
+    groups: {
+      frontend: 'Frontend',
+      backend: 'Backend',
+      data: 'Data',
+      cloud: 'Cloud & DevOps',
+      ai: 'AI & media',
     },
   },
   contact: {
