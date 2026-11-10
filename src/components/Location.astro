@@ -1,7 +1,7 @@
 ---
 // The Frankfurt section, with Fig. 2: a site plan drawn from the same footprints as the skyline.
 import { translations, type Locale } from "../i18n";
-import { CITY } from "../lib/geo";
+import { CITY, RIEDBERG, toLocal } from "../lib/geo";
 import { PLAN, plan } from "../lib/skyline";
 import SectionHead from "./SectionHead.astro";
 
@@ -12,13 +12,30 @@ interface Props {
 const t = translations[Astro.props.lang].location;
 
 // City-level facts only; the postal address lives on the imprint.
-const coordinates = `${CITY.lat.toFixed(4)}° N · ${CITY.lon.toFixed(4)}° E`;
 const facts = [
   [t.facts.base, t.facts.baseValue],
-  [t.facts.coordinates, coordinates],
+  [t.facts.region, t.facts.regionValue],
   [t.facts.languages, "Deutsch · English"]
 ];
-const [cx, cz] = plan.centre;
+
+// Riedbergplatz lies about 8 km north-west of the plan, off the sheet: an arrow at the edge points
+// the way, labelled with the true distance and the square's coordinates.
+const [cx, cz] = toLocal(CITY.lat, CITY.lon);
+const [rx, rz] = toLocal(RIEDBERG.lat, RIEDBERG.lon);
+const distance = Math.hypot(rx - cx, rz - cz);
+const [ux, uz] = [(rx - cx) / distance, (rz - cz) / distance];
+const km = (distance / 1000).toLocaleString(Astro.props.lang === "de" ? "de-DE" : "en-US", {
+  maximumFractionDigits: 1
+});
+const tail = [-700, -620];
+const head = [tail[0] + ux * 420, tail[1] + uz * 420].map(Math.round);
+const barb = (deg: number) => {
+  const a = (deg * Math.PI) / 180;
+  const [bx, bz] = [-ux, -uz];
+  return `${Math.round(head[0] + 80 * (bx * Math.cos(a) - bz * Math.sin(a)))} ${Math.round(head[1] + 80 * (bx * Math.sin(a) + bz * Math.cos(a)))}`;
+};
+const arrow = `M${tail[0]} ${tail[1]}L${head.join(" ")}M${barb(28)}L${head.join(" ")}L${barb(-28)}`;
+const coordinates = `${RIEDBERG.lat.toFixed(4)}° N · ${RIEDBERG.lon.toFixed(4)}° E`;
 
 const left = (x: number) => `${(((x - PLAN.minX) / PLAN.width) * 100).toFixed(2)}%`;
 const top = (z: number) => `${(((z - PLAN.minZ) / PLAN.height) * 100).toFixed(2)}%`;
@@ -62,13 +79,15 @@ const grid =
             <path class="plan__grid" d={grid}></path>
             <path class="plan__river" d={plan.river}></path>
             <path class="plan__buildings" d={plan.footprints}></path>
-            <!-- Reference point: the city centre, marked in red pen. -->
-            <path class="plan__mark" d={`M${cx - 110} ${cz}h220M${cx} ${cz - 110}v220`}></path>
-            <circle class="plan__mark" cx={cx} cy={cz} r="55"></circle>
+            <!-- Towards Riedbergplatz, off the sheet. -->
+            <path class="plan__mark" d={arrow}></path>
             <!-- Scale bar: 500 m. -->
             <path class="plan__scale" d={`M${PLAN.minX + 150} ${maxZ - 190}v40h500v-40m-250 12v28`}></path>
           </svg>
-          <span class="tag tag--red tag--centred" style={`left:${left(cx)};top:${top(cz + 150)}`}>{coordinates}</span>
+          <span class="tag tag--red tag--stack" style={`left:${left(head[0] + 30)};top:${top(head[1] - 140)}`}>
+            <span>May Solutions · {km} km</span>
+            <span>{coordinates}</span>
+          </span>
           <span class="tag" style={`left:${left(-1690)};top:${top(-215)}`}>{t.plan.fair}</span>
           <span class="tag" style={`left:${left(420)};top:${top(-330)}`}>{t.plan.banks}</span>
           <span class="tag tag--river" style={`left:${left(-330)};top:${top(1520)}`}>{t.plan.river}</span>
@@ -155,9 +174,10 @@ const grid =
   .tag--red {
     color: var(--color-redline);
   }
-  /* Hangs below the marker, nudged right so it clears the footprints west of it. */
-  .tag--centred {
-    translate: -35% 0;
+  .tag--stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
   }
   .tag--river {
     color: var(--color-muted);

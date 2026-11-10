@@ -1,7 +1,8 @@
 ---
 import "../styles/global.css";
 import { HOME, type Locale } from "../i18n";
-import { CITY } from "../lib/geo";
+import { RIEDBERG } from "../lib/geo";
+import { SITE_URL } from "../lib/seo";
 
 interface Props {
   lang: Locale;
@@ -9,51 +10,18 @@ interface Props {
   description: string;
   /** Pages that exist in both languages announce each other and may forward by browser language. */
   translated?: boolean;
+  /** Structured data for this page (see src/lib/seo.ts). */
+  jsonLd?: object;
 }
 
-const { lang, title, description, translated = false } = Astro.props;
+const { lang, title, description, translated = false, jsonLd } = Astro.props;
 
 const siteName = "May Solutions";
-const siteUrl = "https://may-solutions.io";
+const siteUrl = SITE_URL;
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
 const ogImage = `${siteUrl}/og-image.png`;
 
 const forwardGerman = `try{var l=localStorage.getItem("locale")||((navigator.language||"").toLowerCase().indexOf("de")===0?"de":"en");if(l==="de")location.replace("${HOME.de}"+location.hash)}catch(e){}`;
-
-const localBusinessSchema = {
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  name: "May Solutions UG (haftungsbeschränkt)",
-  alternateName: "May Solutions",
-  description:
-    "Softwareentwicklung und IT-Beratung in Frankfurt am Main. Individuelle Softwarelösungen für Unternehmen im Mittelstand.",
-  url: siteUrl,
-  // No email, street address or office coordinates here: structured data is read by bots first.
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "Frankfurt am Main",
-    addressRegion: "Hessen",
-    addressCountry: "DE"
-  },
-  geo: {
-    "@type": "GeoCoordinates",
-    latitude: CITY.lat,
-    longitude: CITY.lon
-  },
-  areaServed: [
-    { "@type": "City", name: "Frankfurt am Main" },
-    { "@type": "State", name: "Hessen" },
-    { "@type": "Country", name: "Deutschland" }
-  ],
-  serviceType: ["Softwareentwicklung", "IT-Beratung", "Webentwicklung", "Digitalisierungsberatung", "IT-Consulting"],
-  priceRange: "$$",
-  knowsLanguage: ["de", "en"],
-  founder: {
-    "@type": "Person",
-    name: "Minh Chi Nguyen"
-  },
-  legalName: "May Solutions UG (haftungsbeschränkt)"
-};
 ---
 
 <!doctype html>
@@ -75,11 +43,8 @@ const localBusinessSchema = {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
-    <meta name="robots" content="index, follow" />
-    <meta
-      name="keywords"
-      content="Softwareentwicklung Frankfurt, IT Beratung Frankfurt, Webentwicklung Frankfurt, Digitalisierung Mittelstand, IT Consulting Frankfurt, individuelle Software Frankfurt, Webentwicklung Agentur Frankfurt"
-    />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="May Solutions" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -102,8 +67,8 @@ const localBusinessSchema = {
     <!-- Geo tags for local SEO -->
     <meta name="geo.region" content="DE-HE" />
     <meta name="geo.placename" content="Frankfurt am Main" />
-    <meta name="geo.position" content={`${CITY.lat};${CITY.lon}`} />
-    <meta name="ICBM" content={`${CITY.lat}, ${CITY.lon}`} />
+    <meta name="geo.position" content={`${RIEDBERG.lat};${RIEDBERG.lon}`} />
+    <meta name="ICBM" content={`${RIEDBERG.lat}, ${RIEDBERG.lon}`} />
 
     <!-- Hreflang -->
     {
@@ -120,7 +85,7 @@ const localBusinessSchema = {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 
     <!-- Analytics -->
     <script defer src="https://cloud.umami.is/script.js" data-website-id="65f48548-1b3a-4e69-901b-3ebb92c754eb"

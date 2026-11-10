@@ -13,6 +13,13 @@ export function toLocal(lat: number, lon: number): [x: number, z: number] {
 /** The city centre (Römerberg). The office address is deliberately not part of the drawings. */
 export const CITY = { lat: 50.1109, lon: 8.6821 };
 
+/**
+ * Riedbergplatz, the square at the heart of the Riedberg district (OpenStreetMap). This is the pin
+ * for the company's location in structured data, meta tags and the site plan; it is a public place,
+ * not the office.
+ */
+export const RIEDBERG = { lat: 50.1766, lon: 8.629 };
+
 /** Centreline of the river Main through the city, west → east (OpenStreetMap, simplified). */
 export const RIVER: [lat: number, lon: number][] = [
   [50.092, 8.574],
