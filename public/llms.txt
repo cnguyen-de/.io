@@ -1,0 +1,30 @@
+# May Solutions
+
+> May Solutions is a software development and IT consulting company based in Riedberg, Frankfurt am Main, Germany. It builds custom web platforms, online shops and AI / computer-vision features and advises on software architecture, for companies in Frankfurt, the Rhein-Main region and across Europe, in German and English. (Deutsch: Softwareentwicklung und IT-Beratung in Riedberg, Frankfurt am Main.)
+
+## What May Solutions does
+
+- Web development: web applications and online shops end to end (interface, API, database, delivery pipeline). Reference: frontend lead for the Mercedes-Benz online shop.
+- IT consulting: system and software architecture design, reviews of architecture, code and delivery pipelines, and hands-on implementation alongside the client's team.
+- AI & vision: machine-learning and computer-vision features taken into production. Reference: state-of-the-art AI for thinkcell.
+- Working mode: agile delivery, short iterations, working software early.
+
+## Location and area served
+
+- Headquarters: Riedberg, Frankfurt am Main, Hessen, Germany (the city's science district, home of the Goethe University campus).
+- Serves: Frankfurt am Main, the Rhein-Main region, Germany and Europe.
+- Languages: German, English.
+
+## Clients
+
+SOKA-BAU, Mercedes-Benz.io, LBBW, GitLab, Bilfinger, thinkcell.
+
+## Technologies
+
+TypeScript, Vue, React, Angular, Next.js, Node.js, Python, Spring Boot, Flask, PostgreSQL, MongoDB, MySQL, Supabase, Firebase, Docker, Kubernetes, Helm, TensorFlow, PyTorch, OpenCV, FFmpeg.
+
+## Pages
+
+- [Home (English)](https://may-solutions.io/): services, clients, technologies, location, FAQ and contact.
+- [Startseite (Deutsch)](https://may-solutions.io/de/): the same in German.
+- [Impressum](https://may-solutions.io/impressum/): legal notice with company and contact details.
