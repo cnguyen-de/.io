@@ -1,0 +1,10 @@
+---
+// Shows a contact detail to people but not to scrapers — see src/lib/protect.ts.
+import { scatter } from "../lib/protect";
+
+interface Props {
+  value: string;
+}
+---
+
+{scatter(Astro.props.value).map((p) => (p.decoy ? <span class="decoy">{p.text}</span> : p.text))}

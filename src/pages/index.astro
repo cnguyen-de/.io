@@ -1,13 +1,5 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import MainContent from "../components/MainContent.vue";
-import LanguageToggle from "../components/LanguageToggle.vue";
+import Home from "../components/Home.astro";
 ---
 
-<Layout
-  title="May Solutions – Software Development & IT Consulting Frankfurt"
-  description="May Solutions is your partner for custom software development and IT consulting in Frankfurt am Main. Web development, digitalization consulting, and IT solutions for businesses."
->
-  <LanguageToggle client:only="vue" />
-  <MainContent client:only="vue" />
-</Layout>
+<Home lang="en" />

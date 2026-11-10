@@ -1,1 +1,169 @@
 @import "tailwindcss";
+@import "@fontsource-variable/geist/wght.css";
+@import "@fontsource-variable/geist-mono/wght.css";
+
+/*
+ * The site is drawn like an engineering sheet: warm paper, ink linework and a single red pen
+ * ("redline") for dimensions and annotations. Sections that carry `.theme-ink` flip paper and ink.
+ */
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, Menlo, monospace;
+
+  --color-surface: #f4f2ed;
+  --color-ink: #0d0f14;
+  --color-muted: #5f6269;
+  --color-line: rgb(13 15 20 / 0.14);
+  --color-redline: #cf3010;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--color-redline);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-redline);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+.theme-ink {
+  --color-surface: #0d0f14;
+  --color-ink: #f4f2ed;
+  --color-muted: #a2a5ad;
+  --color-line: rgb(244 242 237 / 0.16);
+  --color-redline: #ff6a45;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+@layer components {
+  /* Page gutter + maximum measure, shared by every section. */
+  .wrap {
+    width: 100%;
+    max-width: 92rem;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4.5vw, 4rem);
+  }
+
+  /* Small monospaced caption: section numbers, labels, annotations. */
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .label b {
+    font-weight: 500;
+    color: var(--color-redline);
+  }
+
+  .display {
+    font-size: clamp(2.25rem, 5.4vw, 4.75rem);
+    line-height: 0.98;
+    font-weight: 560;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .lede {
+    font-size: clamp(1.0625rem, 1.25vw, 1.1875rem);
+    line-height: 1.55;
+    color: var(--color-muted);
+    text-wrap: pretty;
+  }
+
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    height: 3rem;
+    padding-inline: 1.375rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    background: var(--color-ink);
+    color: var(--color-surface);
+    transition:
+      background-color 0.25s,
+      color 0.25s;
+  }
+  .btn:hover {
+    background: var(--color-redline);
+    color: #fff;
+  }
+  .btn svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    transition: transform 0.35s var(--ease-out-expo);
+  }
+  .btn:hover svg {
+    transform: translateX(3px);
+  }
+  .btn--sm {
+    height: 2.25rem;
+    padding-inline: 1rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Text link with a hairline that redraws itself on hover. */
+  .link {
+    background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+    transition: background-size 0.4s var(--ease-out-expo);
+  }
+  .link:hover {
+    background-position: 100% 100%;
+    background-size: 0 1px;
+  }
+}
+
+/* Junk that <Protected /> weaves into contact details to mislead scrapers; never shown, read or copied. */
+.decoy {
+  display: none !important;
+}
+
+/*
+ * Scroll reveal. Content is visible by default; only once the inline head script has confirmed
+ * JavaScript (html.js) do elements wait for the observer in Layout.astro to mark them `.is-in`.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translate3d(0, 1.25rem, 0);
+    transition:
+      opacity 0.9s var(--ease-out-expo),
+      transform 0.9s var(--ease-out-expo);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+  .js [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+  }
+}

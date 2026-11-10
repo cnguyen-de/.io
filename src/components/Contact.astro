@@ -1,0 +1,162 @@
+---
+import { EMAIL } from "../data/contact";
+import { HOME, other, translations, type Locale } from "../i18n";
+import { encode } from "../lib/protect";
+import Arrow from "./Arrow.astro";
+import CatMark from "./CatMark.astro";
+import Protected from "./Protected.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = translations[lang];
+---
+
+<section id="contact" class="theme-ink pt-24 md:pt-36">
+  <div class="wrap">
+    <p class="label" data-reveal><b>05</b>&ensp;—&ensp;{t.contact.eyebrow}</p>
+    <h2 class="contact__heading mt-6" data-reveal style="--i:1">{t.contact.heading}</h2>
+    <p class="lede mt-6 max-w-[28rem]" data-reveal style="--i:2">{t.contact.body}</p>
+
+    <div class="mt-14 md:mt-20" data-reveal style="--i:3">
+      <a href="#contact" data-mail={encode(EMAIL)} class="mail group">
+        <span class="mail__text"><Protected value={EMAIL} /></span>
+        <Arrow dir="out" class="mail__arrow" />
+      </a>
+      <button type="button" class="copy label mt-5" data-copy={encode(EMAIL)} data-copied={t.contact.copied}>
+        <span data-copy-label>{t.contact.copy}</span>
+      </button>
+    </div>
+  </div>
+
+  <footer class="wrap mt-24 md:mt-36">
+    <div class="border-line flex flex-col gap-6 border-t py-8 md:flex-row md:items-center md:justify-between">
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-3">
+        <span class="flex items-center gap-2.5">
+          <CatMark class="h-5 w-5" />
+          <span class="font-semibold tracking-[-0.03em] whitespace-nowrap">May Solutions</span>
+        </span>
+        <span class="label">© {new Date().getFullYear()} · Frankfurt am Main</span>
+      </div>
+      <nav class="label flex flex-wrap items-center gap-x-7 gap-y-3" aria-label="Footer">
+        <a href="/impressum" class="foot-link">{t.footer.imprint}</a>
+        <a
+          href={HOME[other(lang)]}
+          hreflang={other(lang)}
+          lang={other(lang)}
+          data-locale={other(lang)}
+          class="foot-link">
+          {other(lang) === "de" ? "Deutsch" : "English"}
+        </a>
+        <a href="#top" class="foot-link">{t.footer.top} ↑</a>
+      </nav>
+    </div>
+    <p class="label pb-8 opacity-70">
+      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" class="foot-link">
+        {t.footer.credit}
+      </a>
+    </p>
+  </footer>
+</section>
+
+<script>
+  import { decode } from "../lib/protect";
+
+  document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
+    const label = button.querySelector("[data-copy-label]")!;
+    const idle = label.textContent;
+    let timer = 0;
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(decode(button.dataset.copy!));
+      } catch {
+        return; // No clipboard access: the mailto link above still works.
+      }
+      label.textContent = button.dataset.copied!;
+      button.toggleAttribute("data-done", true);
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        label.textContent = idle;
+        button.toggleAttribute("data-done", false);
+      }, 2000);
+    });
+  });
+</script>
+
+<style>
+  .contact__heading {
+    max-width: 14ch;
+    font-size: clamp(2.5rem, 8.2vw, 8rem);
+    line-height: 0.94;
+    font-weight: 580;
+    letter-spacing: -0.055em;
+    text-wrap: balance;
+  }
+
+  .mail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    max-width: 100%;
+    font-size: clamp(1.25rem, 5.6vw, 5.25rem);
+    line-height: 1.1;
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    transition: color 0.3s;
+  }
+  .mail__text {
+    padding-bottom: 0.08em;
+    background:
+      linear-gradient(var(--color-redline), var(--color-redline)) 0 100% / 0 2px no-repeat,
+      linear-gradient(var(--color-line), var(--color-line)) 0 100% / 100% 2px no-repeat;
+    transition: background-size 0.6s var(--ease-out-expo);
+  }
+  .mail :global(.mail__arrow) {
+    flex: none;
+    width: 0.6em;
+    height: 0.6em;
+    stroke-width: 1.25;
+    color: var(--color-redline);
+    transition: transform 0.5s var(--ease-out-expo);
+  }
+  .mail:hover .mail__text {
+    background-size:
+      100% 2px,
+      100% 2px;
+  }
+  .mail:hover :global(.mail__arrow) {
+    transform: translateX(0.12em);
+  }
+
+  .copy {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    height: 2rem;
+    padding-inline: 0.875rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+  }
+  .copy:hover,
+  .copy[data-done] {
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .copy[data-done] {
+    color: var(--color-redline);
+    border-color: var(--color-redline);
+  }
+
+  .foot-link {
+    transition: color 0.2s;
+  }
+  .foot-link:hover {
+    color: var(--color-ink);
+  }
+</style>

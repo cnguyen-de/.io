@@ -1,0 +1,132 @@
+---
+import { EMAIL } from "../data/contact";
+import { HOME, other, translations, type Locale } from "../i18n";
+import { encode } from "../lib/protect";
+import Arrow from "./Arrow.astro";
+import CatMark from "./CatMark.astro";
+
+interface Props {
+  lang: Locale;
+  /** On the home page the navigation points at its sections; elsewhere only the way back is shown. */
+  home?: boolean;
+}
+
+const { lang, home = true } = Astro.props;
+const t = translations[lang].nav;
+const base = home ? "" : HOME[lang];
+
+const links = [
+  ["#clients", t.clients],
+  ["#services", t.services],
+  ["#stack", t.stack],
+  ["#frankfurt", t.location]
+];
+---
+
+<a
+  href="#main"
+  class="btn btn--sm fixed top-3 left-3 z-[60] -translate-y-20 transition-transform focus-visible:translate-y-0">
+  {t.skip}
+</a>
+
+<header class="site-header sticky top-0 z-50" data-header>
+  <div class="wrap flex h-16 items-center justify-between gap-3 sm:gap-6">
+    <a href={HOME[lang]} class="group flex items-center gap-2.5" aria-label="May Solutions">
+      <CatMark class="group-hover:text-redline h-[1.375rem] w-[1.375rem] transition-colors" />
+      <span class="text-[1.0625rem] font-semibold tracking-[-0.03em] whitespace-nowrap">May Solutions</span>
+    </a>
+
+    <nav class="hidden items-center gap-8 md:flex" aria-label="Main">
+      {
+        home &&
+          links.map(([href, label]) => (
+            <a href={base + href} class="nav-link text-sm">
+              {label}
+            </a>
+          ))
+      }
+    </nav>
+
+    <div class="flex items-center gap-3 min-[360px]:gap-4 sm:gap-5">
+      {
+        home && (
+          <a
+            href={HOME[other(lang)]}
+            hreflang={other(lang)}
+            lang={other(lang)}
+            data-locale={other(lang)}
+            aria-label={t.switchLabel}
+            class="lang label">
+            <span aria-hidden="true" class="text-ink max-[359px]:hidden">
+              {lang.toUpperCase()}
+            </span>
+            <span aria-hidden="true" class="max-[359px]:hidden">
+              /
+            </span>
+            <span class="lang__to">{t.switchTo}</span>
+          </a>
+        )
+      }
+      <a href={home ? "#contact" : `${HOME[lang]}#contact`} data-mail={encode(EMAIL)} class="btn btn--sm">
+        <span class="sm:hidden">{t.ctaShort}</span>
+        <span class="hidden sm:inline">{t.cta}</span>
+        <Arrow class="max-[359px]:hidden" />
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  // The header gains its hairline once the page has moved.
+  const header = document.querySelector<HTMLElement>("[data-header]");
+  const sync = () => header?.toggleAttribute("data-scrolled", window.scrollY > 8);
+  sync();
+  window.addEventListener("scroll", sync, { passive: true });
+</script>
+
+<style>
+  .site-header {
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s;
+  }
+  .site-header[data-scrolled] {
+    border-bottom-color: var(--color-line);
+  }
+
+  .nav-link {
+    position: relative;
+    color: var(--color-muted);
+    transition: color 0.2s;
+  }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 -0.375rem 0;
+    height: 1px;
+    background: var(--color-redline);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s var(--ease-out-expo);
+  }
+  .nav-link:hover {
+    color: var(--color-ink);
+  }
+  .nav-link:hover::after {
+    transform: scaleX(1);
+  }
+
+  .lang {
+    display: inline-flex;
+    gap: 0.375rem;
+    padding-block: 0.5rem;
+  }
+  .lang__to {
+    transition: color 0.2s;
+  }
+  .lang:hover .lang__to {
+    color: var(--color-redline);
+  }
+</style>

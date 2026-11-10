@@ -1,0 +1,178 @@
+---
+// The Frankfurt section, with Fig. 2: a site plan drawn from the same footprints as the skyline.
+import { translations, type Locale } from "../i18n";
+import { CITY } from "../lib/geo";
+import { PLAN, plan } from "../lib/skyline";
+import SectionHead from "./SectionHead.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const t = translations[Astro.props.lang].location;
+
+// City-level facts only; the postal address lives on the imprint.
+const coordinates = `${CITY.lat.toFixed(4)}° N · ${CITY.lon.toFixed(4)}° E`;
+const facts = [
+  [t.facts.base, t.facts.baseValue],
+  [t.facts.coordinates, coordinates],
+  [t.facts.languages, "Deutsch · English"]
+];
+const [cx, cz] = plan.centre;
+
+const left = (x: number) => `${(((x - PLAN.minX) / PLAN.width) * 100).toFixed(2)}%`;
+const top = (z: number) => `${(((z - PLAN.minZ) / PLAN.height) * 100).toFixed(2)}%`;
+const maxX = PLAN.minX + PLAN.width;
+const maxZ = PLAN.minZ + PLAN.height;
+
+// Grid lines every 500 m.
+const range = (from: number, to: number) =>
+  Array.from({ length: Math.floor((to - from) / 500) + 1 }, (_, i) => from + i * 500);
+const grid =
+  range(-1500, maxX)
+    .map((x) => `M${x} ${PLAN.minZ}V${maxZ}`)
+    .join("") +
+  range(-1000, maxZ)
+    .map((z) => `M${PLAN.minX} ${z}H${maxX}`)
+    .join("");
+---
+
+<section id="frankfurt" class="border-line border-t py-24 md:py-36">
+  <div class="wrap">
+    <SectionHead n={4} eyebrow={t.eyebrow} heading={t.heading} />
+
+    <div class="mt-14 grid gap-x-8 gap-y-12 md:mt-20 lg:grid-cols-12">
+      <div class="lg:col-span-4" data-reveal>
+        <p class="lede">{t.body}</p>
+        <dl class="facts mt-10">
+          {
+            facts.map(([label, value]) => (
+              <div>
+                <dt class="label">{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+
+      <figure class="lg:col-span-7 lg:col-start-6" data-reveal style="--i:1">
+        <div class="plan">
+          <svg viewBox={`${PLAN.minX} ${PLAN.minZ} ${PLAN.width} ${PLAN.height}`} role="img" aria-label={t.figureAlt}>
+            <path class="plan__grid" d={grid}></path>
+            <path class="plan__river" d={plan.river}></path>
+            <path class="plan__buildings" d={plan.footprints}></path>
+            <!-- Reference point: the city centre, marked in red pen. -->
+            <path class="plan__mark" d={`M${cx - 110} ${cz}h220M${cx} ${cz - 110}v220`}></path>
+            <circle class="plan__mark" cx={cx} cy={cz} r="55"></circle>
+            <!-- Scale bar: 500 m. -->
+            <path class="plan__scale" d={`M${PLAN.minX + 150} ${maxZ - 190}v40h500v-40m-250 12v28`}></path>
+          </svg>
+          <span class="tag tag--red tag--centred" style={`left:${left(cx)};top:${top(cz + 150)}`}>{coordinates}</span>
+          <span class="tag" style={`left:${left(-1690)};top:${top(-215)}`}>{t.plan.fair}</span>
+          <span class="tag" style={`left:${left(420)};top:${top(-330)}`}>{t.plan.banks}</span>
+          <span class="tag tag--river" style={`left:${left(-330)};top:${top(1520)}`}>{t.plan.river}</span>
+          <span class="tag" style={`left:${left(PLAN.minX + 150)};top:${top(maxZ - 110)}`}>500 m</span>
+          <span class="tag tag--north" style={`left:${left(maxX - 260)};top:${top(maxZ - 330)}`}>
+            <svg viewBox="0 0 16 22" aria-hidden="true"><path d="M8 21V2M3 8l5-6 5 6"></path></svg>
+            {t.plan.north}
+          </span>
+        </div>
+        <figcaption class="label mt-3">{t.figure}</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .facts > div {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 0.875rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .facts > div:last-child {
+    border-bottom: 1px solid var(--color-line);
+  }
+  .facts dd {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  .plan {
+    position: relative;
+    border: 1px solid var(--color-ink);
+    overflow: hidden;
+  }
+  .plan > svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .plan path {
+    fill: none;
+    vector-effect: non-scaling-stroke;
+  }
+  .plan__grid {
+    stroke: var(--color-line);
+    stroke-width: 1;
+    stroke-opacity: 0.6;
+  }
+  /* The Main, at roughly its real width (the stroke is in metres here, so it scales with the plan). */
+  .plan .plan__river {
+    stroke: color-mix(in srgb, var(--color-ink) 9%, var(--color-surface));
+    stroke-width: 130;
+    stroke-linejoin: round;
+    vector-effect: none;
+  }
+  .plan .plan__buildings {
+    fill: var(--color-ink);
+  }
+  .plan__mark,
+  .plan__scale {
+    stroke-width: 1;
+  }
+  .plan .plan__mark {
+    fill: none;
+    stroke: var(--color-redline);
+    vector-effect: non-scaling-stroke;
+  }
+  .plan__scale {
+    stroke: var(--color-ink);
+  }
+
+  .tag {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .tag--red {
+    color: var(--color-redline);
+  }
+  /* Hangs below the marker, nudged right so it clears the footprints west of it. */
+  .tag--centred {
+    translate: -35% 0;
+  }
+  .tag--river {
+    color: var(--color-muted);
+    letter-spacing: 0.4em;
+  }
+  .tag--north {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+  }
+  .tag--north svg {
+    width: 0.875rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.25;
+  }
+</style>

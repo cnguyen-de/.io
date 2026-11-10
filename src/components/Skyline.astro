@@ -1,0 +1,201 @@
+---
+// Fig. 1: the Frankfurt skyline as an elevation drawing. See src/lib/skyline.ts for the geometry.
+import { SHEET, annotations, buildings } from "../lib/skyline";
+
+interface Props {
+  caption: string;
+  alt: string;
+  /** Localised names for the hand-labelled landmarks. */
+  names?: Record<string, string>;
+}
+
+const { caption, alt, names = {} } = Astro.props;
+
+const pctX = (x: number) => `${(((x - SHEET.minX) / SHEET.width) * 100).toFixed(3)}%`;
+const pctY = (h: number) => `${((h / SHEET.height) * 100).toFixed(3)}%`;
+const TICK = 22; // metres: the short horizontal stroke between leader and text
+
+// Buildings rise outwards from the banking district.
+const delay = (x: number) => Math.round(Math.min(1, Math.abs(x - 250) / 2200) * 900);
+---
+
+<figure class="sky">
+  <div class="sky__clip">
+    <div class="sky__sheet">
+      <svg viewBox={`${SHEET.minX} 0 ${SHEET.width} ${SHEET.height}`} role="img" aria-label={alt}>
+        {
+          buildings.map((b) => (
+            <g class="b" style={`--d:${delay(b.x)}ms;--o:${(0.4 + b.depth * 0.6).toFixed(2)}`}>
+              {b.shapes.map((s) => (
+                <>
+                  <path class="b__outline" d={s.d} />
+                  {s.facade && <path class="b__facade" d={s.facade} />}
+                </>
+              ))}
+            </g>
+          ))
+        }
+        {
+          annotations.map((a) => (
+            <path
+              class:list={["leader", a.from && `from-${a.from}`]}
+              d={`M${a.x} ${SHEET.height - a.top - 5}V${SHEET.height - a.at}h${a.side === "left" ? -TICK : TICK}`}
+            />
+          ))
+        }
+      </svg>
+      {
+        annotations.map((a) => (
+          <span
+            class:list={["tag", `tag--${a.side}`, a.from && `from-${a.from}`]}
+            style={`left:${pctX(a.x + (a.side === "left" ? -TICK : TICK))};bottom:${pctY(a.at)}`}
+            aria-hidden="true">
+            {names[a.name] ?? a.name} <b>{a.top} m</b>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+  <figcaption class="wrap flex items-center justify-between gap-6 pt-3">
+    <span class="label">{caption}</span>
+    <span class="scale label" aria-hidden="true">
+      <span>0</span>
+      <span class="scale__bar"></span>
+      <span>500 m</span>
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  /*
+   * The sheet is drawn at one scale everywhere: its height sets the metres-per-pixel, and narrow
+   * screens simply see less of the city. `--focus` is the x position (metres) kept in the middle.
+   */
+  .sky {
+    --sky-h: clamp(9.5rem, 15vw, 19rem);
+    --focus: 300;
+  }
+  @media (min-width: 768px) {
+    .sky {
+      --focus: 60;
+    }
+  }
+  @media (min-width: 1100px) {
+    .sky {
+      --focus: -235;
+    }
+  }
+  .sky__clip {
+    position: relative;
+    height: var(--sky-h);
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-ink);
+  }
+  .sky__sheet {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    height: 100%;
+    aspect-ratio: 4200 / 400;
+    transform: translateX(calc((var(--focus) + 1700) / 4200 * -100%));
+  }
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .b__outline,
+  .b__facade,
+  .leader {
+    fill: none;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    stroke-linejoin: round;
+  }
+  .b__outline {
+    fill: var(--color-surface);
+    stroke: var(--color-ink);
+    stroke-opacity: var(--o);
+  }
+  .b__facade {
+    stroke: var(--color-ink);
+    stroke-opacity: calc(var(--o) * 0.28);
+  }
+  .leader {
+    stroke: var(--color-redline);
+  }
+
+  .tag {
+    position: absolute;
+    padding-inline: 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-ink);
+    transform: translateY(50%);
+  }
+  .tag--left {
+    transform: translate(-100%, 50%);
+  }
+  .tag b {
+    font-weight: 500;
+    color: var(--color-redline);
+  }
+  @media (max-width: 639px) {
+    .from-sm {
+      display: none;
+    }
+  }
+  @media (max-width: 1099px) {
+    .from-lg {
+      display: none;
+    }
+  }
+
+  /* A real scale bar: 500 m at the sheet's scale (400 m of sky = the sheet's height). */
+  .scale {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    flex: none;
+  }
+  .scale__bar {
+    width: calc(var(--sky-h) * 500 / 400);
+    height: 5px;
+    border: 1px solid var(--color-ink);
+    background: linear-gradient(90deg, var(--color-ink) 50%, transparent 0) 0 0 / 40% 100%;
+  }
+  @media (min-width: 640px) {
+    .scale {
+      display: flex;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .b {
+      transform-box: fill-box;
+      transform-origin: 50% 100%;
+      animation: rise 1.2s var(--ease-out-expo) both;
+      animation-delay: calc(0.3s + var(--d));
+    }
+    .leader,
+    .tag {
+      animation: appear 0.8s ease both 1.7s;
+    }
+    @keyframes rise {
+      from {
+        transform: scaleY(0);
+      }
+    }
+    @keyframes appear {
+      from {
+        opacity: 0;
+      }
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 // Downloads the real 3D footprints of Frankfurt's high-rises from OpenStreetMap and writes them to
-// src/three/skyline.json (local metres, same projection as src/three/frankfurt.ts).
+// src/data/skyline.json (local metres, same projection as src/lib/geo.ts).
 //
 //   node scripts/fetch-skyline.mjs
 //
@@ -12,7 +12,7 @@ const MIN_HEIGHT = 60; // metres; everything lower is covered by the procedural 
 const ORIGIN = { lat: 50.1105, lon: 8.67 };
 const M_PER_DEG_LAT = 111_200;
 const M_PER_DEG_LON = 111_320 * Math.cos((ORIGIN.lat * Math.PI) / 180);
-/** Kept hand-modelled in city.ts. */
+/** Drawn by hand in src/lib/skyline.ts. */
 const EXCLUDE = [
   { lat: 50.109, lon: 8.703, r: 150 }, // EZB (twisted twin towers)
   { lat: 50.1107, lon: 8.6853, r: 80 }, // Kaiserdom
@@ -143,5 +143,5 @@ const data = dedup.map((s) => ({
   pts: s.pts.map(([x, z]) => [r1(x), r1(z)]),
 }));
 
-writeFileSync(new URL("../src/three/skyline.json", import.meta.url), JSON.stringify(data));
+writeFileSync(new URL("../src/data/skyline.json", import.meta.url), JSON.stringify(data));
 console.log(`wrote ${data.length} footprints (tallest: ${data[0]?.name ?? "?"} ${data[0]?.h} m)`);
