@@ -1,0 +1,132 @@
+---
+import { translations, type Locale } from "../i18n";
+import SectionHead from "./SectionHead.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const t = translations[Astro.props.lang].services;
+---
+
+<section id="services" class="theme-ink py-24 md:py-36">
+  <div class="wrap">
+    <SectionHead n={2} eyebrow={t.eyebrow} heading={t.heading} body={t.method} />
+
+    <div class="mt-14 md:mt-20">
+      {
+        t.items.map((s, i) => (
+          <article class="service">
+            <header class="service__head" data-reveal>
+              <span class="service__n">{String(i + 1).padStart(2, "0")}</span>
+              <h3 class="label">{s.title}</h3>
+            </header>
+
+            <div class="service__main" data-reveal style="--i:1">
+              {/* The label names the category; the claim says what the client gets. */}
+              <p class="service__claim">{s.claim}</p>
+              <p class="lede mt-5 max-w-[34rem]">{s.body}</p>
+            </div>
+
+            <dl class="service__spec" data-reveal style="--i:2">
+              {s.rows.map(([label, detail]) => (
+                <div>
+                  <dt>{label}</dt>
+                  <dd>{detail}</dd>
+                </div>
+              ))}
+              <div class="is-reference">
+                <dt>{t.reference}</dt>
+                <dd>{s.reference}</dd>
+              </div>
+            </dl>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .service {
+    display: grid;
+    gap: 1.75rem;
+    padding-block: 2.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .service:last-child {
+    padding-bottom: 0;
+  }
+  .service__head {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  .service__n {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    color: var(--color-redline);
+  }
+  .service__head h3 {
+    color: var(--color-ink);
+  }
+  .service__claim {
+    max-width: 22ch;
+    font-size: clamp(1.75rem, 3.3vw, 3rem);
+    line-height: 1.04;
+    font-weight: 540;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+
+  /* What each service consists of, as a small spec sheet. */
+  .service__spec {
+    align-self: start;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .service__spec > div {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 0.75rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .service__spec dt {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .service__spec dd {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    text-wrap: balance;
+  }
+  /* Proof, in red pen. */
+  .service__spec .is-reference dt {
+    color: var(--color-redline);
+  }
+
+  @media (min-width: 1024px) {
+    .service {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 2rem;
+      padding-block: 3.5rem;
+    }
+    .service__head {
+      grid-column: span 2;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .service__main {
+      grid-column: span 6;
+    }
+    .service__spec {
+      grid-column: span 4;
+    }
+  }
+</style>

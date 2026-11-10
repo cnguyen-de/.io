@@ -1,20 +1,24 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
+import { HOME, type Locale } from "../i18n";
+import { CITY } from "../lib/geo";
+
 interface Props {
+  lang: Locale;
   title: string;
-  description?: string;
-  canonicalUrl?: string;
+  description: string;
+  /** Pages that exist in both languages announce each other and may forward by browser language. */
+  translated?: boolean;
 }
 
-const {
-  title,
-  description = "May Solutions ist Ihr Partner für Softwareentwicklung und IT-Beratung in Frankfurt am Main. Individuelle Softwarelösungen für den Mittelstand – Webentwicklung, Digitalisierung und IT-Consulting.",
-  canonicalUrl = Astro.url.href,
-} = Astro.props;
+const { lang, title, description, translated = false } = Astro.props;
 
 const siteName = "May Solutions";
 const siteUrl = "https://may-solutions.io";
-const ogImage = `${siteUrl}/og-image.webp`;
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
+const ogImage = `${siteUrl}/og-image.png`;
+
+const forwardGerman = `try{var l=localStorage.getItem("locale")||((navigator.language||"").toLowerCase().indexOf("de")===0?"de":"en");if(l==="de")location.replace("${HOME.de}"+location.hash)}catch(e){}`;
 
 const localBusinessSchema = {
   "@context": "https://schema.org",
@@ -24,48 +28,48 @@ const localBusinessSchema = {
   description:
     "Softwareentwicklung und IT-Beratung in Frankfurt am Main. Individuelle Softwarelösungen für Unternehmen im Mittelstand.",
   url: siteUrl,
-  email: "contact@may-solutions.io",
+  // No email, street address or office coordinates here: structured data is read by bots first.
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Ella-Bergmann-Michel-Str. 3",
     addressLocality: "Frankfurt am Main",
-    postalCode: "60438",
     addressRegion: "Hessen",
-    addressCountry: "DE",
+    addressCountry: "DE"
   },
   geo: {
     "@type": "GeoCoordinates",
-    latitude: 50.166,
-    longitude: 8.682,
+    latitude: CITY.lat,
+    longitude: CITY.lon
   },
   areaServed: [
     { "@type": "City", name: "Frankfurt am Main" },
     { "@type": "State", name: "Hessen" },
-    { "@type": "Country", name: "Deutschland" },
+    { "@type": "Country", name: "Deutschland" }
   ],
-  serviceType: [
-    "Softwareentwicklung",
-    "IT-Beratung",
-    "Webentwicklung",
-    "Digitalisierungsberatung",
-    "IT-Consulting",
-  ],
+  serviceType: ["Softwareentwicklung", "IT-Beratung", "Webentwicklung", "Digitalisierungsberatung", "IT-Consulting"],
   priceRange: "$$",
   knowsLanguage: ["de", "en"],
   founder: {
     "@type": "Person",
-    name: "Minh Chi Nguyen",
+    name: "Minh Chi Nguyen"
   },
-  legalName: "May Solutions UG (haftungsbeschränkt)",
+  legalName: "May Solutions UG (haftungsbeschränkt)"
 };
 ---
 
 <!doctype html>
-<html lang="de">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#f4f2ed" />
+
+    <!-- Marks the document as scripted (enables scroll reveals) before first paint. -->
+    <script is:inline>
+      document.documentElement.classList.add("js");
+    </script>
+    {/* First visit in a German browser, or German chosen earlier: continue on the German page. */}
+    {translated && lang === "en" && <script is:inline set:html={forwardGerman} />}
 
     <!-- Primary SEO -->
     <title>{title}</title>
@@ -86,8 +90,8 @@ const localBusinessSchema = {
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:locale" content="de_DE" />
-    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale" content={lang === "de" ? "de_DE" : "en_US"} />
+    {translated && <meta property="og:locale:alternate" content={lang === "de" ? "en_US" : "de_DE"} />}
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -98,45 +102,72 @@ const localBusinessSchema = {
     <!-- Geo tags for local SEO -->
     <meta name="geo.region" content="DE-HE" />
     <meta name="geo.placename" content="Frankfurt am Main" />
-    <meta name="geo.position" content="50.166;8.682" />
-    <meta name="ICBM" content="50.166, 8.682" />
+    <meta name="geo.position" content={`${CITY.lat};${CITY.lon}`} />
+    <meta name="ICBM" content={`${CITY.lat}, ${CITY.lon}`} />
 
     <!-- Hreflang -->
-    <link rel="alternate" hreflang="de" href={siteUrl} />
-    <link rel="alternate" hreflang="x-default" href={siteUrl} />
+    {
+      translated && (
+        <>
+          <link rel="alternate" hreflang="en" href={siteUrl + HOME.en} />
+          <link rel="alternate" hreflang="de" href={siteUrl + HOME.de} />
+          <link rel="alternate" hreflang="x-default" href={siteUrl + HOME.en} />
+        </>
+      )
+    }
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- JSON-LD Structured Data -->
-    <script
-      type="application/ld+json"
-      set:html={JSON.stringify(localBusinessSchema)}
-    />
+    <script type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
 
     <!-- Analytics -->
-    <script
-      defer
-      src="https://cloud.umami.is/script.js"
-      data-website-id="65f48548-1b3a-4e69-901b-3ebb92c754eb"></script>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="65f48548-1b3a-4e69-901b-3ebb92c754eb"
+    ></script>
   </head>
-  <body class="min-h-dvh bg-gray-950">
+  <body class="min-h-dvh">
     <slot />
+
+    <script>
+      import { decode } from "../lib/protect";
+
+      // Contact links carry their address encoded (data-mail). It is only turned into a mailto:
+      // once somebody actually uses the page, which scrapers do not do.
+      let unlocked = false;
+      const unlock = () => {
+        if (unlocked) return;
+        unlocked = true;
+        document.querySelectorAll<HTMLAnchorElement>("a[data-mail]").forEach((a) => {
+          a.href = `mailto:${decode(a.dataset.mail!)}`;
+        });
+      };
+      for (const type of ["pointerdown", "pointermove", "touchstart", "keydown", "focusin", "scroll", "click"]) {
+        window.addEventListener(type, unlock, { once: true, passive: true, capture: true });
+      }
+
+      // Scroll reveal: mark elements as they enter the viewport (styles live in global.css).
+      const items = document.querySelectorAll("[data-reveal]");
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            entry.target.classList.add("is-in");
+            observer.unobserve(entry.target);
+          }
+        },
+        { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
+      );
+      items.forEach((el) => observer.observe(el));
+
+      // Remember an explicit language choice, so the root page stops guessing from the browser.
+      document.querySelectorAll<HTMLAnchorElement>("a[data-locale]").forEach((a) =>
+        a.addEventListener("click", () => {
+          try {
+            localStorage.setItem("locale", a.dataset.locale!);
+          } catch {}
+        })
+      );
+    </script>
   </body>
 </html>
-<style is:global>
-  html {
-    font-family: "Inter", sans-serif;
-  }
-  code {
-    font-family:
-      Menlo,
-      Monaco,
-      Lucida Console,
-      Liberation Mono,
-      DejaVu Sans Mono,
-      Bitstream Vera Sans Mono,
-      Courier New,
-      monospace;
-  }
-</style>

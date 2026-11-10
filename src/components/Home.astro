@@ -1,0 +1,32 @@
+---
+// The whole home page for one language. src/pages/index.astro (en) and src/pages/de/index.astro render it.
+import { translations, type Locale } from "../i18n";
+import Layout from "../layouts/Layout.astro";
+import Clients from "./Clients.astro";
+import Contact from "./Contact.astro";
+import Header from "./Header.astro";
+import Hero from "./Hero.astro";
+import Location from "./Location.astro";
+import Services from "./Services.astro";
+import Stack from "./Stack.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const { meta } = translations[lang];
+---
+
+<Layout lang={lang} title={meta.title} description={meta.description} translated>
+  <span id="top"></span>
+  <Header lang={lang} />
+  <main id="main">
+    <Hero lang={lang} />
+    <Clients lang={lang} />
+    <Services lang={lang} />
+    <Stack lang={lang} />
+    <Location lang={lang} />
+  </main>
+  <Contact lang={lang} />
+</Layout>

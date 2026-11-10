@@ -1,0 +1,20 @@
+---
+// A plain arrow glyph; `dir` turns it for "go to" (right), "leave the site" (up-right) and "further down".
+interface Props {
+  dir?: "right" | "out" | "down";
+  class?: string;
+}
+const { dir = "right", class: className } = Astro.props;
+const rotate = { right: 0, out: -45, down: 90 }[dir];
+---
+
+<svg
+  viewBox="0 0 16 16"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  aria-hidden="true"
+  class={className}
+  style={rotate ? `rotate: ${rotate}deg` : undefined}>
+  <path d="M2 8h11.5M9 3.5 13.5 8 9 12.5"></path>
+</svg>
