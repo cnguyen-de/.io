@@ -35,10 +35,12 @@ const t = translations[Astro.props.lang].services;
                   <dd>{detail}</dd>
                 </div>
               ))}
-              <div class="is-reference">
-                <dt>{t.reference}</dt>
-                <dd>{s.reference}</dd>
-              </div>
+              {s.reference && (
+                <div class="is-reference">
+                  <dt>{t.reference}</dt>
+                  <dd>{s.reference}</dd>
+                </div>
+              )}
             </dl>
           </article>
         ))

@@ -11,7 +11,7 @@ const { n, eyebrow, heading, body } = Astro.props;
 
 <header class="grid gap-x-8 gap-y-6 md:grid-cols-12 md:items-end">
   <p class="label md:col-span-12" data-reveal>
-    <b>{String(n).padStart(2, "0")}</b>&ensp;—&ensp;{eyebrow}
+    <b>{String(n).padStart(2, "0")}</b>&ensp;·&ensp;{eyebrow}
   </p>
   <h2 class="display md:col-span-7" data-reveal style="--i:1">{heading}</h2>
   {

@@ -10,6 +10,9 @@ interface Props {
 
 const t = translations[Astro.props.lang].stack;
 const techIcons: Record<string, string> = icons;
+// For items without a brand mark: a small target, drawn in the same 24-unit box as the icons.
+const NEUTRAL =
+  "M12 4.5a7.5 7.5 0 1 0 0 15a7.5 7.5 0 1 0 0-15zm0 1.75a5.75 5.75 0 1 1 0 11.5a5.75 5.75 0 1 1 0-11.5zM12 9.75a2.25 2.25 0 1 0 0 4.5a2.25 2.25 0 1 0 0-4.5z";
 ---
 
 <section id="stack" class="py-24 md:py-36">
@@ -28,7 +31,7 @@ const techIcons: Record<string, string> = icons;
               {g.items.map(([slug, name]) => (
                 <li class="item">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d={techIcons[slug]} />
+                    {slug ? <path d={techIcons[slug]} /> : <path d={NEUTRAL} fill-rule="evenodd" />}
                   </svg>
                   {name}
                 </li>
@@ -87,7 +90,7 @@ const techIcons: Record<string, string> = icons;
   }
   @media (min-width: 1100px) {
     .groups {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 </style>

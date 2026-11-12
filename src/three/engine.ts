@@ -158,7 +158,7 @@ function planPose(w: number, _h: number, q: number): Pose {
     az: lerp(-34, 0, e),
     el: lerp(36, 90, e),
     mpp: PLAN.width / w,
-    radius: lerp(900, 4200, smoothstep(0, 0.8, q))
+    radius: lerp(900, 7000, smoothstep(0, 0.8, q))
   };
 }
 
@@ -633,7 +633,9 @@ export class Engine {
     const set = (cls: number, colour: Vector3, strength: number) =>
       u.uClass.value[cls].set(colour.x, colour.y, colour.z, strength);
     set(LINE.grid, ink, 0.1 * lift);
-    set(LINE.minor, ink, 0.17 * lift);
+    // Side streets only exist around the high-rises; on the zoomed-out site plan they would end in a
+    // visible circle, so they fade out as the plan lies flat.
+    set(LINE.minor, ink, 0.17 * lift * (stage.view === "plan" ? 1 - flat : 1));
     set(LINE.rail, ink, 0.25 * lift);
     set(LINE.major, ink, 0.38 * lift);
     set(LINE.shore, ink, 0.34 * lift);

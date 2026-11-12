@@ -186,11 +186,11 @@ function buildGround(strokes: Strokes) {
 export function build() {
   const strokes = new Strokes();
 
-  // Strokes are laid down in class order; the survey grid comes first, every 500 m.
-  for (let v = -3500; v <= 3500; v += 500) {
-    strokes.add([v, 0, -3600], [v, 0, 3200], LINE.grid);
-    strokes.add([-3500, 0, v], [3800, 0, v], LINE.grid);
-  }
+  // Strokes are laid down in class order; the survey grid comes first, every 500 m, over the whole
+  // site plan sheet (which reaches north to Riedberg) and the city island.
+  const [gx0, gx1, gz0, gz1] = [-4500, 3800, -8500, 3200];
+  for (let x = gx0; x <= gx1; x += 500) strokes.add([x, 0, gz0], [x, 0, gz1], LINE.grid);
+  for (let z = gz0; z <= gz1; z += 500) strokes.add([gx0, 0, z], [gx1, 0, z], LINE.grid);
   for (const line of map.minor) strokes.path(decode(line), LINE.minor);
   for (const line of map.rail) strokes.path(decode(line), LINE.rail);
   for (const line of map.major) strokes.path(decode(line), LINE.major);
@@ -207,11 +207,11 @@ export function build() {
   for (const c of callouts)
     strokes.add([c.x, c.top + 7, c.z], [c.x, c.at, c.z], LINE.leader, MODE.always, UP, UP, towers[c.id], c.rank);
 
-  // Site plan annotation: the scale bar. (The key plan towards Riedberg is an HTML overlay.)
-  const x0 = PLAN.minX + 150;
-  const z0 = PLAN.minZ + PLAN.height - 150;
-  strokes.path([[x0, z0 - 40], [x0, z0], [x0 + 500, z0], [x0 + 500, z0 - 40]], LINE.planInk); // prettier-ignore
-  strokes.path([[x0 + 250, z0 - 28], [x0 + 250, z0]], LINE.planInk); // prettier-ignore
+  // Site plan annotation: the 1 km scale bar. (The Riedberg pin is an HTML overlay.)
+  const x0 = PLAN.minX + 300;
+  const z0 = PLAN.minZ + PLAN.height - 315;
+  strokes.path([[x0, z0 - 85], [x0, z0], [x0 + 1000, z0], [x0 + 1000, z0 - 85]], LINE.planInk); // prettier-ignore
+  strokes.path([[x0 + 500, z0 - 60], [x0 + 500, z0]], LINE.planInk); // prettier-ignore
 
   // Obstruction lights on everything tall enough to need them.
   const lights: number[] = [];

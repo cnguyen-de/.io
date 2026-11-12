@@ -10,8 +10,11 @@ export function toLocal(lat: number, lon: number): [x: number, z: number] {
   return [(lon - ORIGIN.lon) * M_PER_DEG_LON, -(lat - ORIGIN.lat) * M_PER_DEG_LAT];
 }
 
-/** The site plan sheet (Fig. 2): the part of the city it shows, in local metres. */
-export const PLAN = { minX: -1750, minZ: -1150, width: 3750, height: 3000 };
+/**
+ * The site plan sheet (Fig. 2): the part of the city it shows, in local metres. Portrait, 4:5,
+ * reaching from Sachsenhausen in the south to Riedberg, the company's home, in the north.
+ */
+export const PLAN = { minX: -4500, minZ: -8100, width: 8000, height: 10000 };
 
 /** The city centre (Römerberg). The office address is deliberately not part of the drawings. */
 export const CITY = { lat: 50.1109, lon: 8.6821 };
@@ -62,16 +65,3 @@ export const RIVER: [lat: number, lon: number][] = [
   [50.1079, 8.7243],
   [50.1089, 8.7279]
 ];
-
-/**
- * The key plan inset on the site plan: Riedbergplatz lies about 8 km north-west of the sheet, so a
- * smaller-scale drawing shows the sheet and the square together. Local metres, north up.
- */
-export const KEY = { minX: -3900, minZ: -8300, width: 6600, height: 10800 };
-
-/** Riedbergplatz and the city centre in local metres, and the true distance between them. */
-export function riedberg() {
-  const city = toLocal(CITY.lat, CITY.lon);
-  const pin = toLocal(RIEDBERG.lat, RIEDBERG.lon);
-  return { city, pin, distance: Math.hypot(pin[0] - city[0], pin[1] - city[1]) };
-}

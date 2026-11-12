@@ -1,4 +1,4 @@
-// Downloads the base map of central Frankfurt from OpenStreetMap — streets, railway tracks, the
+// Downloads the base map of Frankfurt from OpenStreetMap — streets, railway tracks, the
 // Main and its harbour basins, parks — and writes it to src/data/map.json (local metres, same
 // projection as src/lib/geo.ts). The 3D model draws it as the linework under the high-rises.
 //
@@ -12,11 +12,28 @@ const ORIGIN = { lat: 50.1105, lon: 8.67 };
 const M_PER_DEG_LAT = 111_200;
 const M_PER_DEG_LON = 111_320 * Math.cos((ORIGIN.lat * Math.PI) / 180);
 
-/** The model is a round island of city: everything further than RADIUS from CENTRE is dropped. */
+/**
+ * Minor streets form a round island of city: those further than RADIUS from CENTRE are dropped.
+ * Everything else (main roads, railways, water, parks) covers REGION, a rectangle around the
+ * site plan sheet (PLAN in src/lib/geo.ts), which reaches north to Riedberg.
+ */
 const CENTRE = [150, -250];
 const RADIUS = 2900;
+const REGION = { minX: -4800, maxX: 3800, minZ: -8400, maxZ: 2700 };
 
-const BBOX = [50.076, 8.617, 50.146, 8.723];
+const toBox = ({ minX, maxX, minZ, maxZ }) => [
+  (ORIGIN.lat - maxZ / M_PER_DEG_LAT).toFixed(4),
+  (ORIGIN.lon + minX / M_PER_DEG_LON).toFixed(4),
+  (ORIGIN.lat - minZ / M_PER_DEG_LAT).toFixed(4),
+  (ORIGIN.lon + maxX / M_PER_DEG_LON).toFixed(4)
+];
+const BBOX = toBox(REGION);
+const ISLAND = toBox({
+  minX: CENTRE[0] - RADIUS,
+  maxX: CENTRE[0] + RADIUS,
+  minZ: CENTRE[1] - RADIUS,
+  maxZ: CENTRE[1] + RADIUS
+});
 
 const MAJOR = ["motorway", "trunk", "primary", "secondary", "motorway_link", "trunk_link", "primary_link"];
 const MINOR = ["tertiary", "residential", "unclassified", "living_street", "pedestrian"];
@@ -24,7 +41,8 @@ const MINOR = ["tertiary", "residential", "unclassified", "living_street", "pede
 const query = `
 [out:json][timeout:180];
 (
-  way["highway"~"^(${[...MAJOR, ...MINOR].join("|")})$"](${BBOX});
+  way["highway"~"^(${MAJOR.join("|")})$"](${BBOX});
+  way["highway"~"^(${MINOR.join("|")})$"](${ISLAND});
   way["railway"="rail"]["tunnel"!="yes"](${BBOX});
   way["natural"="water"](${BBOX});
   relation["natural"="water"](${BBOX});
@@ -64,7 +82,8 @@ async function overpass() {
 }
 
 const local = ({ lat, lon }) => [(lon - ORIGIN.lon) * M_PER_DEG_LON, -(lat - ORIGIN.lat) * M_PER_DEG_LAT];
-const inside = ([x, z]) => Math.hypot(x - CENTRE[0], z - CENTRE[1]) <= RADIUS;
+const onIsland = ([x, z]) => Math.hypot(x - CENTRE[0], z - CENTRE[1]) <= RADIUS;
+const inRegion = ([x, z]) => x >= REGION.minX && x <= REGION.maxX && z >= REGION.minZ && z <= REGION.maxZ;
 
 /** Douglas–Peucker. */
 function simplify(pts, tolerance) {
@@ -91,13 +110,34 @@ function simplify(pts, tolerance) {
   return pts.filter((_, i) => keep[i]);
 }
 
-/** Cuts a polyline into the runs that lie on the island. */
-function clipLine(pts) {
+/** The point where segment a→b crosses the edge of an area (by bisection, for any shape). */
+function crossing(a, b, inside) {
+  const at = (t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  const startIn = inside(a);
+  let [lo, hi] = [0, 1];
+  for (let i = 0; i < 24; i++) {
+    const mid = (lo + hi) / 2;
+    if (inside(at(mid)) === startIn) lo = mid;
+    else hi = mid;
+  }
+  return at(startIn ? lo : hi);
+}
+
+/**
+ * Cuts a polyline into the runs that lie inside an area, cut exactly at its edge, so that the runs
+ * inside and outside the island meet without a gap.
+ */
+function clipLine(pts, inside) {
   const runs = [];
   let run = [];
-  for (const p of pts) {
-    if (inside(p)) run.push(p);
-    else {
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i];
+    const prev = pts[i - 1];
+    if (inside(p)) {
+      if (!run.length && prev) run.push(crossing(prev, p, inside));
+      run.push(p);
+    } else {
+      if (run.length && prev) run.push(crossing(prev, p, inside));
       if (run.length > 1) runs.push(run);
       run = [];
     }
@@ -106,14 +146,13 @@ function clipLine(pts) {
   return runs;
 }
 
-/** Clips a ring to the island's bounding square (Sutherland–Hodgman); enough for a filled shape. */
+/** Clips a ring to the region (Sutherland–Hodgman). */
 function clipRing(ring) {
-  const R = RADIUS + 50;
   const edges = [
-    [(p) => p[0] >= CENTRE[0] - R, 0, CENTRE[0] - R],
-    [(p) => p[0] <= CENTRE[0] + R, 0, CENTRE[0] + R],
-    [(p) => p[1] >= CENTRE[1] - R, 1, CENTRE[1] - R],
-    [(p) => p[1] <= CENTRE[1] + R, 1, CENTRE[1] + R]
+    [(p) => p[0] >= REGION.minX, 0, REGION.minX],
+    [(p) => p[0] <= REGION.maxX, 0, REGION.maxX],
+    [(p) => p[1] >= REGION.minZ, 1, REGION.minZ],
+    [(p) => p[1] <= REGION.maxZ, 1, REGION.maxZ]
   ];
   let out = ring;
   for (const [keep, axis, value] of edges) {
@@ -241,17 +280,32 @@ const closedRing = (geometry) => {
 
 const { elements } = await overpass();
 
+/**
+ * Off the island the map is only ever seen at site-plan scale, around Riedberg: it is drawn
+ * coarser (looser simplification, only the larger roads, parks and water).
+ */
+const COARSE = { tolerance: 10, park: 60_000, water: 20_000, roads: ["motorway", "trunk", "primary"] };
+const offIsland = (p) => inRegion(p) && !onIsland(p);
+
 const major = [];
+const majorCoarse = [];
 const minor = [];
 const rail = [];
+const railCoarse = [];
 /** Polygons: [outer, ...holes], each a flat ring. */
 const water = [];
 const parks = [];
 
 function addPolygon(target, outer, holes, tolerance, minArea) {
-  const ring = simplify(clipRing(outer), tolerance);
+  const clipped = clipRing(outer);
+  const centre = clipped.reduce(([x, z], p) => [x + p[0] / clipped.length, z + p[1] / clipped.length], [0, 0]);
+  if (clipped.length && !onIsland(centre)) {
+    tolerance = COARSE.tolerance;
+    minArea = target === parks ? COARSE.park : COARSE.water;
+  }
+  const ring = simplify(clipped, tolerance);
   if (ring.length < 3 || Math.abs(area(ring)) < minArea) return;
-  if (!ring.some(inside) && !inside(CENTRE)) return;
+  if (!ring.some(inRegion)) return;
   const inner = holes
     .map((h) => simplify(clipRing(h), tolerance))
     .filter((h) => h.length >= 3 && Math.abs(area(h)) > 400);
@@ -263,11 +317,17 @@ for (const e of elements) {
   if (e.type === "way" && e.geometry) {
     if (t.highway) {
       if (t.tunnel === "yes" || t.area === "yes") continue;
-      const target = MAJOR.includes(t.highway) ? major : minor;
-      target.push(...clipLine(e.geometry.map(local)));
+      const pts = e.geometry.map(local);
+      if (!MAJOR.includes(t.highway)) minor.push(...clipLine(pts, onIsland));
+      else {
+        major.push(...clipLine(pts, onIsland));
+        if (COARSE.roads.includes(t.highway)) majorCoarse.push(...clipLine(pts, offIsland));
+      }
     } else if (t.railway) {
       if (t.service === "siding" || t.service === "yard" || t.service === "spur") continue;
-      rail.push(...clipLine(e.geometry.map(local)));
+      const pts = e.geometry.map(local);
+      rail.push(...clipLine(pts, onIsland));
+      railCoarse.push(...clipLine(pts, offIsland));
     } else if (t.natural === "water" && e.geometry.length > 3) {
       addPolygon(water, closedRing(e.geometry), [], 2, 2500);
     } else if ((t.leisure === "park" || t.landuse === "cemetery") && e.geometry.length > 3) {
@@ -295,8 +355,14 @@ for (const e of elements) {
   }
 }
 
-const strokes = (lines) => chain(lines).map((line) => flat(simplify(line, 1.6)));
-const data = { major: strokes(major), minor: strokes(minor), rail: strokes(rail), water, parks };
+const strokes = (lines, tolerance = 1.6) => chain(lines).map((line) => flat(simplify(line, tolerance)));
+const data = {
+  major: [...strokes(major), ...strokes(majorCoarse, COARSE.tolerance)],
+  minor: strokes(minor),
+  rail: [...strokes(rail), ...strokes(railCoarse, COARSE.tolerance)],
+  water,
+  parks
+};
 const json = JSON.stringify(data);
 writeFileSync(new URL("../src/data/map.json", import.meta.url), json);
 const points = (lines) => lines.flat(2).length / 2;

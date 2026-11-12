@@ -1,12 +1,13 @@
 # May Solutions
 
-> May Solutions is a software development and IT consulting company based in Riedberg, Frankfurt am Main, Germany. It builds custom web platforms, online shops and AI / computer-vision features and advises on software architecture, for companies in Frankfurt, the Rhein-Main region and across Europe, in German and English. (Deutsch: Softwareentwicklung und IT-Beratung in Riedberg, Frankfurt am Main.)
+> May Solutions is a software development and IT consulting company based in Riedberg, Frankfurt am Main, Germany. It builds custom web platforms, online shops and AI / computer-vision features and advises on software architecture and on using AI effectively, for companies in Frankfurt, the Rhein-Main region and across Europe, in German and English. (Deutsch: Softwareentwicklung und IT-Beratung in Riedberg, Frankfurt am Main.)
 
 ## What May Solutions does
 
 - Web development: web applications and online shops end to end (interface, API, database, delivery pipeline). Reference: frontend lead for the Mercedes-Benz online shop.
 - IT consulting: system and software architecture design, reviews of architecture, code and delivery pipelines, and hands-on implementation alongside the client's team.
-- AI & vision: machine-learning and computer-vision features taken into production. Reference: state-of-the-art AI for thinkcell.
+- AI, vision & speech: machine-learning, computer-vision and speech features taken into production, including object classification, speech-to-text, text-to-speech and retrieval-augmented generation (RAG). Reference: state-of-the-art AI for thinkcell.
+- AI consulting: how to use frontier AI models effectively, in business and in daily work: use cases, model and tool selection, and applications built on Anthropic, OpenAI and Google Vertex AI models.
 - Working mode: agile delivery, short iterations, working software early.
 
 ## Location and area served
@@ -21,7 +22,7 @@ SOKA-BAU, Mercedes-Benz.io, LBBW, GitLab, Bilfinger, thinkcell.
 
 ## Technologies
 
-TypeScript, Vue, React, Angular, Next.js, Node.js, Python, Spring Boot, Flask, PostgreSQL, MongoDB, MySQL, Supabase, Firebase, Docker, Kubernetes, Helm, TensorFlow, PyTorch, OpenCV, FFmpeg.
+TypeScript, Vue, React, Angular, Next.js, Node.js, Python, Spring Boot, Flask, PostgreSQL, MongoDB, MySQL, Google Cloud (GCP), AWS, Firebase, Supabase, Docker, Kubernetes, Helm, Argo CD, Harbor, Grafana, Anthropic, OpenAI, Vertex AI, Langfuse, TensorFlow, PyTorch, OpenCV, FFmpeg.
 
 ## Pages
 

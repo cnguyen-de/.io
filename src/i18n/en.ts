@@ -1,6 +1,6 @@
 export const en = {
   meta: {
-    title: "Software Company in Frankfurt am Main – May Solutions",
+    title: "Software Company in Frankfurt am Main - May Solutions",
     description:
       "Software development and IT consulting in Frankfurt am Main. May Solutions builds custom web platforms and AI for Rhein-Main and Europe."
   },
@@ -27,10 +27,10 @@ export const en = {
     descriptor: "Custom software that scales to",
     descriptorStrong: "hundreds of millions of users.",
     secondary: "Our services",
-    figure: "Fig. 1 — Frankfurt am Main · view from the south · true to scale",
+    figure: "Fig. 1 · Frankfurt am Main · view from the south · true to scale",
     figureAlt: "Line drawing of the Frankfurt skyline seen from the south, drawn to scale.",
     // The same city as a 3D model, where the browser can draw it.
-    model: "Fig. 1 — Frankfurt am Main · axonometric · true to scale",
+    model: "Fig. 1 · Frankfurt am Main · axonometric · true to scale",
     modelAlt: "Three-dimensional line drawing of Frankfurt's high-rises along the river Main, true to scale.",
     hint: "Drag to turn the model"
   },
@@ -52,13 +52,13 @@ export const en = {
     eyebrow: "Services",
     heading: "Our services",
     // How we work, shown next to the heading.
-    method: "Agile delivery — short iterations, working software early, plans that adapt.",
+    method: "Agile delivery: short iterations, working software early, plans that adapt.",
     reference: "Reference",
     items: [
       {
         title: "Web development",
         claim: "Web platforms engineered for hundreds of millions of users.",
-        body: "We design and build web applications and online shops end to end — interface, API, database and the pipeline that ships them — to be run, not just launched.",
+        body: "We design and build web applications and online shops end to end, from interface, API and database to the pipeline that ships them. Built to be run, not just launched.",
         reference: "Frontend lead for the Mercedes‑Benz online shop",
         rows: [
           ["Interfaces", "Vue · React · Angular · Next.js"],
@@ -69,7 +69,7 @@ export const en = {
       {
         title: "Consulting",
         claim: "Architecture designed by the people who then build it.",
-        body: "We design system architecture that holds as traffic grows, review what already exists — and stay to implement what we recommend.",
+        body: "We design system architecture that holds as traffic grows, review what already exists and stay to implement what we recommend.",
         reference: "Architecture design and implementation for numerous companies",
         rows: [
           ["Design", "System & software architecture"],
@@ -78,14 +78,26 @@ export const en = {
         ]
       },
       {
-        title: "AI & vision",
+        title: "AI, vision & speech",
         claim: "Models that leave the notebook and reach production.",
-        body: "We build machine-learning and computer-vision features and wire them into the product around them.",
+        body: "We build machine-learning, computer-vision and speech features, from object classification to speech-to-text, text-to-speech and retrieval-augmented generation (RAG), and wire them into the product around them.",
         reference: "State-of-the-art AI for thinkcell",
         rows: [
           ["Models", "TensorFlow · PyTorch"],
-          ["Vision", "OpenCV"],
+          ["Vision", "OpenCV · object classification"],
+          ["Speech", "Speech-to-text · text-to-speech"],
+          ["Language", "RAG · LLM integration"],
           ["Video pipelines", "FFmpeg"]
+        ]
+      },
+      {
+        title: "AI consulting",
+        claim: "Frontier AI, put to work in your business and your day.",
+        body: "We build applications on frontier models and work with them every day. We help you find where AI pays off, choose the right models and tools, and use them effectively in your products, your processes and your daily work.",
+        rows: [
+          ["Strategy", "Use cases, models, tools"],
+          ["Build", "Applications on Anthropic, OpenAI & Vertex AI"],
+          ["Everyday use", "Working effectively with AI, for teams and individuals"]
         ]
       }
     ]
@@ -93,13 +105,15 @@ export const en = {
   stack: {
     eyebrow: "Technologies",
     heading: "Technologies we build with",
-    body: "We work with a broad range of modern technologies and pick the right tool for each requirement — for reliable, maintainable software that supports your business objectives.",
+    body: "We work with a broad range of modern technologies and pick the right tool for each requirement, for reliable, maintainable software that supports your business objectives.",
     groups: {
       frontend: "Frontend",
       backend: "Backend",
       data: "Data",
-      cloud: "Cloud & DevOps",
-      ai: "AI & media"
+      cloud: "Cloud",
+      devops: "DevOps",
+      genai: "Generative AI",
+      ml: "ML & media"
     }
   },
   location: {
@@ -113,24 +127,22 @@ export const en = {
       regionValue: "Germany · Europe",
       languages: "Languages"
     },
-    figure: "Fig. 2 — Frankfurt am Main · high-rises and the river Main · site plan",
-    figureAlt: "Site plan of central Frankfurt showing the footprints of its high-rises along the river Main.",
+    figure: "Fig. 2 · Frankfurt am Main · from the river Main to Riedberg · site plan",
+    figureAlt: "Site plan of Frankfurt from the river Main north to Riedberg, with the high-rises of the city centre and May Solutions marked in Riedberg.",
     plan: {
       north: "N",
       river: "Main",
       fair: "Messe",
-      banks: "Banking district",
-      key: "Key plan",
-      sheet: "Fig. 2"
+      banks: "Banking district"
     }
   },
   contact: {
     eyebrow: "Contact",
     heading: "Ready for your next project?",
-    body: "Get in touch — we look forward to hearing from you.",
+    body: "Get in touch. We look forward to hearing from you.",
     copy: "Copy email address",
     copied: "Copied",
-    figure: "Fig. 3 — Frankfurt am Main · view from the south · by night",
+    figure: "Fig. 3 · Frankfurt am Main · view from the south · by night",
     figureAlt: "The Frankfurt skyline at night, seen from the south, drawn to scale."
   },
   footer: {

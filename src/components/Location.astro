@@ -1,7 +1,7 @@
 ---
 // The Frankfurt section, with Fig. 2: a site plan drawn from the same footprints as the skyline.
 import { translations, type Locale } from "../i18n";
-import { KEY, riedberg } from "../lib/geo";
+import { RIEDBERG, toLocal } from "../lib/geo";
 import { PLAN, plan } from "../lib/skyline";
 import SectionHead from "./SectionHead.astro";
 
@@ -18,17 +18,8 @@ const facts = [
   [t.facts.languages, "Deutsch · English"]
 ];
 
-// Riedbergplatz lies about 8 km north-west of the plan, off the sheet. A key plan in the corner
-// shows the sheet and the square together, dimensioned from the city centre.
-const { city, pin, distance } = riedberg();
-const km = (distance / 1000).toLocaleString(Astro.props.lang === "de" ? "de-DE" : "en-US", {
-  maximumFractionDigits: 1
-});
-const [ux, uz] = [(pin[0] - city[0]) / distance, (pin[1] - city[1]) / distance];
-const dimension = `M${city.map(Math.round).join(" ")}L${Math.round(pin[0] - ux * 480)} ${Math.round(pin[1] - uz * 480)}`;
-const middle = [(city[0] + pin[0]) / 2, (city[1] + pin[1]) / 2];
-const keyLeft = (x: number) => `${(((x - KEY.minX) / KEY.width) * 100).toFixed(2)}%`;
-const keyTop = (z: number) => `${(((z - KEY.minZ) / KEY.height) * 100).toFixed(2)}%`;
+// Riedbergplatz, the company's home, is pinned on the sheet: the plan reaches north to include it.
+const pin = toLocal(RIEDBERG.lat, RIEDBERG.lon);
 
 const left = (x: number) => `${(((x - PLAN.minX) / PLAN.width) * 100).toFixed(2)}%`;
 const top = (z: number) => `${(((z - PLAN.minZ) / PLAN.height) * 100).toFixed(2)}%`;
@@ -39,10 +30,10 @@ const maxZ = PLAN.minZ + PLAN.height;
 const range = (from: number, to: number) =>
   Array.from({ length: Math.floor((to - from) / 500) + 1 }, (_, i) => from + i * 500);
 const grid =
-  range(-1500, maxX)
+  range(Math.ceil(PLAN.minX / 500) * 500, maxX)
     .map((x) => `M${x} ${PLAN.minZ}V${maxZ}`)
     .join("") +
-  range(-1000, maxZ)
+  range(Math.ceil(PLAN.minZ / 500) * 500, maxZ)
     .map((z) => `M${PLAN.minX} ${z}H${maxX}`)
     .join("");
 ---
@@ -52,7 +43,7 @@ const grid =
     <SectionHead n={4} eyebrow={t.eyebrow} heading={t.heading} />
 
     <div class="mt-14 grid gap-x-8 gap-y-12 md:mt-20 lg:grid-cols-12">
-      <div class="lg:col-span-4" data-reveal>
+      <div class="lg:col-span-5" data-reveal>
         <p class="lede">{t.body}</p>
         <dl class="facts mt-10">
           {
@@ -66,7 +57,7 @@ const grid =
         </dl>
       </div>
 
-      <figure class="lg:col-span-7 lg:col-start-6" data-reveal style="--i:1">
+      <figure class="lg:col-span-6 lg:col-start-7" data-reveal style="--i:1">
         <!-- Where the city model can run, it takes over the sheet (src/three) and the drawing stays hidden. -->
         <div class="plan" data-stage="plan">
           <div class="plan__model" data-stage-canvas></div>
@@ -78,43 +69,19 @@ const grid =
             <path class="plan__grid" d={grid}></path>
             <path class="plan__river" d={plan.river}></path>
             <path class="plan__buildings" d={plan.footprints}></path>
-            <!-- Scale bar: 500 m. -->
-            <path class="plan__scale" d={`M${PLAN.minX + 150} ${maxZ - 190}v40h500v-40m-250 12v28`}></path>
+            <!-- Scale bar: 1 km. -->
+            <path class="plan__scale" d={`M${PLAN.minX + 300} ${maxZ - 400}v85h1000v-85m-500 25v60`}></path>
           </svg>
           <div class="plan__tags" data-stage-overlay>
-            <!-- Key plan: this sheet and Riedberg, 8 km to the north-west, at a smaller scale. -->
-            <div class="key" role="img" aria-label={`${t.plan.key}: May Solutions, Riedberg, ${km} km`}>
-              <div class="key__map">
-                <svg viewBox={`${KEY.minX} ${KEY.minZ} ${KEY.width} ${KEY.height}`} aria-hidden="true">
-                  <path class="key__river" d={plan.river}></path>
-                  <rect class="key__sheet" x={PLAN.minX} y={PLAN.minZ} width={PLAN.width} height={PLAN.height}></rect>
-                  <path class="key__dimension" d={dimension}></path>
-                  <circle class="key__ring" cx={pin[0]} cy={pin[1]} r="330"></circle>
-                  <circle class="key__pin" cx={pin[0]} cy={pin[1]} r="150"></circle>
-                </svg>
-                <span class="key__tag key__tag--pin" style={`left:${keyLeft(pin[0] + 520)};top:${keyTop(pin[1])}`}>
-                  <b>May Solutions</b>
-                  <span>Riedberg</span>
-                </span>
-                <span
-                  class="key__tag key__tag--dim"
-                  style={`left:${keyLeft(middle[0] + 260)};top:${keyTop(middle[1])}`}>
-                  {km} km
-                </span>
-                <span
-                  class="key__tag key__tag--sheet"
-                  style={`left:${keyLeft(PLAN.minX + PLAN.width - 160)};top:${keyTop(PLAN.minZ + PLAN.height - 230)}`}>
-                  {t.plan.sheet}
-                </span>
-              </div>
-              <span class="key__title">{t.plan.key}</span>
-            </div>
-            <span class="tag tag--locator">May Solutions · Riedberg · {km} km ↖</span>
+            <span class="pin" style={`left:${left(pin[0])};top:${top(pin[1])}`}>
+              <i aria-hidden="true"></i>
+              <span class="pin__label"><b>May Solutions</b><span>Riedberg</span></span>
+            </span>
             <span class="tag" style={`left:${left(-1690)};top:${top(-215)}`}>{t.plan.fair}</span>
             <span class="tag" style={`left:${left(420)};top:${top(-330)}`}>{t.plan.banks}</span>
             <span class="tag tag--river" style={`left:${left(-330)};top:${top(1520)}`}>{t.plan.river}</span>
-            <span class="tag" style={`left:${left(PLAN.minX + 150)};top:${top(maxZ - 110)}`}>500 m</span>
-            <span class="tag tag--north" style={`left:${left(maxX - 260)};top:${top(maxZ - 330)}`}>
+            <span class="tag" style={`left:${left(PLAN.minX + 300)};top:${top(maxZ - 230)}`}>1 km</span>
+            <span class="tag tag--north" style={`left:${left(maxX - 550)};top:${top(maxZ - 1000)}`}>
               <svg viewBox="0 0 16 22" aria-hidden="true"><path d="M8 21V2M3 8l5-6 5 6"></path></svg>
               {t.plan.north}
             </span>
@@ -197,103 +164,66 @@ const grid =
     stroke-width: 1;
   }
 
-  /* Key plan, boxed into the sheet's top-right corner like a title-block inset. */
-  .plan {
-    container-type: inline-size;
-  }
-  .key {
+  /* Riedberg: the company's pin, with a slow ring around it. */
+  .pin {
     position: absolute;
+  }
+  .pin i,
+  .pin i::after {
+    position: absolute;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    translate: -50% -50%;
+  }
+  .pin i {
+    background: var(--color-redline);
+    box-shadow: 0 0 0 3px var(--color-surface);
+  }
+  .pin i::after {
+    content: "";
+    top: 50%;
+    left: 50%;
+    border: 1px solid var(--color-redline);
+    animation: pin-ring 2.4s var(--ease-out-expo) infinite;
+  }
+  @keyframes pin-ring {
+    from {
+      scale: 1;
+      opacity: 1;
+    }
+    to {
+      scale: 3.2;
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pin i::after {
+      animation: none;
+      scale: 2;
+    }
+  }
+  .pin__label {
+    position: absolute;
+    left: 1rem;
     top: 0;
-    right: 0;
-    width: clamp(8.5rem, 19cqw, 10.5rem);
-    border-bottom: 1px solid var(--color-ink);
-    border-left: 1px solid var(--color-ink);
-    background: var(--color-surface);
-  }
-  .key__map {
-    position: relative;
-    aspect-ratio: 6600 / 10800;
-  }
-  .key svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-  .plan .key__river {
-    stroke: color-mix(in srgb, var(--color-ink) 16%, var(--color-surface));
-    stroke-width: 3;
-    stroke-linejoin: round;
-  }
-  .key__sheet {
-    fill: color-mix(in srgb, var(--color-ink) 5%, transparent);
-    stroke: var(--color-ink);
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-  }
-  .plan .key__dimension {
-    stroke: var(--color-redline);
-    stroke-width: 1;
-    stroke-dasharray: 3 3;
-  }
-  .key__pin {
-    fill: var(--color-redline);
-  }
-  .key__ring {
-    fill: none;
-    stroke: var(--color-redline);
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-  }
-  .key__tag,
-  .key__title {
-    position: absolute;
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
-    line-height: 1.25;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .key__tag {
     translate: 0 -50%;
-    color: var(--color-muted);
-  }
-  .key__tag--pin {
     display: flex;
     flex-direction: column;
+    gap: 0.3125rem;
+    padding: 0.3125rem 0.4375rem;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-muted);
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
   }
-  .key__tag--pin b {
+  .pin__label b {
     font-weight: 500;
     color: var(--color-redline);
-  }
-  .key__tag--dim {
-    color: var(--color-redline);
-  }
-  .key__tag--sheet {
-    translate: -100% -50%;
-  }
-  .key__title {
-    position: static;
-    display: block;
-    padding: 0.4375rem 0.5rem;
-    border-top: 1px solid var(--color-ink);
-    color: var(--color-ink);
-  }
-
-  /* On a narrow sheet the inset would cover half the city: a plain pointer stands in for it. */
-  .tag--locator {
-    display: none;
-    top: 0.75rem;
-    right: 0.75rem;
-    color: var(--color-redline);
-  }
-  @container (width < 36rem) {
-    .key {
-      display: none;
-    }
-    .tag--locator {
-      display: block;
-    }
   }
 
   .tag {
