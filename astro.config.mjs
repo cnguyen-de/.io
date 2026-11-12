@@ -8,5 +8,7 @@ export default defineConfig({
   integrations: [sitemap({ i18n: { defaultLocale: "en", locales: { en: "en-US", de: "de-DE" } } })],
   vite: {
     plugins: [tailwindcss()],
+    // The city model (three.js plus map data) is one lazily loaded chunk of about 180 kB gzipped.
+    build: { chunkSizeWarningLimit: 800 },
   },
 });

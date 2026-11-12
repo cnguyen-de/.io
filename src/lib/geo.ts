@@ -10,6 +10,9 @@ export function toLocal(lat: number, lon: number): [x: number, z: number] {
   return [(lon - ORIGIN.lon) * M_PER_DEG_LON, -(lat - ORIGIN.lat) * M_PER_DEG_LAT];
 }
 
+/** The site plan sheet (Fig. 2): the part of the city it shows, in local metres. */
+export const PLAN = { minX: -1750, minZ: -1150, width: 3750, height: 3000 };
+
 /** The city centre (Römerberg). The office address is deliberately not part of the drawings. */
 export const CITY = { lat: 50.1109, lon: 8.6821 };
 
@@ -59,3 +62,25 @@ export const RIVER: [lat: number, lon: number][] = [
   [50.1079, 8.7243],
   [50.1089, 8.7279]
 ];
+
+/**
+ * Riedbergplatz lies about 8 km north-west of the site plan, off the sheet: an arrow near the edge
+ * points the way. Returned in local metres, together with the true distance from the centre.
+ */
+export function riedbergArrow() {
+  const [cx, cz] = toLocal(CITY.lat, CITY.lon);
+  const [rx, rz] = toLocal(RIEDBERG.lat, RIEDBERG.lon);
+  const distance = Math.hypot(rx - cx, rz - cz);
+  const [ux, uz] = [(rx - cx) / distance, (rz - cz) / distance];
+  const tail: [number, number] = [-700, -620];
+  const head: [number, number] = [Math.round(tail[0] + ux * 420), Math.round(tail[1] + uz * 420)];
+  const barb = (deg: number): [number, number] => {
+    const a = (deg * Math.PI) / 180;
+    const [bx, bz] = [-ux, -uz];
+    return [
+      Math.round(head[0] + 80 * (bx * Math.cos(a) - bz * Math.sin(a))),
+      Math.round(head[1] + 80 * (bx * Math.sin(a) + bz * Math.cos(a)))
+    ];
+  };
+  return { tail, head, barbs: [barb(28), barb(-28)], distance };
+}

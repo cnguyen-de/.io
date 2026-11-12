@@ -8,7 +8,7 @@
  * All coordinates are metres (see geo.ts); nothing is exaggerated.
  */
 import raw from "../data/skyline.json";
-import { CITY, RIVER, toLocal } from "./geo";
+import { CITY, PLAN, RIVER, toLocal } from "./geo";
 
 interface Part {
   name?: string;
@@ -165,7 +165,7 @@ export const annotations = ANNOTATED.map((a) => {
 
 // --- Site plan ------------------------------------------------------------------------------------
 
-export const PLAN = { minX: -1750, minZ: -1150, width: 3750, height: 3000 };
+export { PLAN };
 
 export const plan = {
   footprints: parts

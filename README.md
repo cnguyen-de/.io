@@ -1,54 +1,50 @@
-# Astro Starter Kit: Basics
+# may-solutions.io
+
+The website of May Solutions, Frankfurt am Main. A static [Astro](https://astro.build) site in two
+languages (`/` English, `/de/` German), drawn like an engineering sheet: paper, ink and one red pen.
 
 ```sh
-npm create astro@latest -- --template basics
+pnpm install
+pnpm dev      # http://localhost:4321
+pnpm build    # type check + static build into dist/
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+## The city model
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+The home page carries a true-to-scale 3D model of Frankfurt's high-rises, drawn with three.js in
+the same ink-on-paper style as the rest of the page. There is one model, shown as the three classic
+projections of a building:
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+| Figure | Where            | Projection                                                              |
+| ------ | ---------------- | ----------------------------------------------------------------------- |
+| Fig. 1 | Hero             | Axonometric. Pinned while the hero scrolls; it rises, turns and widens. |
+| Fig. 2 | Frankfurt        | Site plan. Arrives tilted and lies down flat, north up.                 |
+| Fig. 3 | Contact (footer) | Elevation from the south, at night.                                     |
 
-## 🚀 Project Structure
+All three can be dragged; in Fig. 1 the towers name themselves under the pointer. The projection is
+orthographic throughout, so the scale figure and scale bar next to each drawing are real.
 
-Inside of your Astro project, you'll see the following folders and files:
+The model is an enhancement. The page is fully rendered without it, including static SVG versions
+of Fig. 1 and Fig. 2 (`src/lib/skyline.ts`); these stay in place when WebGL is missing, JavaScript
+is off, or the visitor prefers reduced motion. Where the model can run, a small inline script in
+`Layout.astro` marks the document (`html.gl`) before first paint and `Home.astro` loads the engine
+as a separate chunk.
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   └── Card.astro
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
+```
+src/three/
+  model.ts    the towers as plain data (shared with the pages, which place the callouts)
+  build.ts    data → GPU buffers: faces, pen strokes, water and parks, lights
+  shaders.ts  the drawing style: paper tones, constant-width strokes, flat shadows
+  engine.ts   stages, camera poses, scrolling, input, labels, scale read-out
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+### Data
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+Everything drawn comes from OpenStreetMap (© OpenStreetMap contributors, ODbL) and is committed, so
+neither the build nor the site talks to OSM:
 
-Any static assets, like images, can be placed in the `public/` directory.
+- `src/data/skyline.json` — footprints and heights of the high-rises: `node scripts/fetch-skyline.mjs`
+- `src/data/map.json` — streets, railways, the Main, parks: `node scripts/fetch-map.mjs`
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Europaturm, Kaiserdom and the ECB are missing from the footprint data and modelled by hand in
+`src/three/model.ts`.

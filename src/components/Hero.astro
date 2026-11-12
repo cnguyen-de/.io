@@ -2,6 +2,7 @@
 import { EMAIL } from "../data/contact";
 import { translations, type Locale } from "../i18n";
 import { encode } from "../lib/protect";
+import { callouts } from "../three/model";
 import Arrow from "./Arrow.astro";
 import Skyline from "./Skyline.astro";
 
@@ -12,67 +13,338 @@ interface Props {
 const { lang } = Astro.props;
 const t = translations[lang];
 const h = t.hero;
+/** Landmarks whose name on the drawing differs from the one in the data. */
+const names: Record<string, string> = lang === "en" ? { EZB: "ECB" } : {};
 ---
 
-<section class="hero relative flex min-h-[calc(100svh-4rem)] flex-col">
-  <div class="hero__grid" aria-hidden="true"></div>
-
-  <div class="wrap relative pt-10 pb-12 md:pt-12 md:pb-10">
-    <p class="label intro" style="--i:0">
-      <b>●</b>&ensp;{h.eyebrow}
-      <span class="max-sm:hidden">— Frankfurt am Main</span>
-    </p>
-
-    <h1 class="headline mt-6">
-      <span class="headline__line"><span class="intro" style="--i:1">{h.headline[0]}</span></span>
-      <span class="headline__line">
-        <span class="intro" style="--i:2">
-          {h.headline[1]}
-          <span class="dim">
-            {h.headlineAccent}
-            <!-- The dimension line: the word measured, at the scale the company works at. -->
-            <span class="dim__line" aria-hidden="true"><span class="dim__value">1 : 100 000 000</span></span>
-          </span>
-        </span>
-      </span>
-    </h1>
-
-    <div class="mt-16 grid gap-x-8 gap-y-10 md:mt-[4.5rem] md:grid-cols-12 md:items-end">
-      <div class="intro md:col-span-7 lg:col-span-6" style="--i:4">
-        <p class="max-w-[30rem] text-xl leading-snug tracking-[-0.02em] text-balance md:text-2xl">
-          <span class="text-muted">{h.descriptor}</span>
-          {h.descriptorStrong}
-        </p>
-        <div class="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
-          <a href="#contact" data-mail={encode(EMAIL)} class="btn">{t.nav.cta}<Arrow /></a>
-          <a href="#services" class="group inline-flex items-center gap-2 text-[0.9375rem] font-medium">
-            <span class="link">{h.secondary}</span>
-            <Arrow dir="down" class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-y-0.5" />
-          </a>
-        </div>
-      </div>
-
-      <ol class="tagline intro md:col-span-5 md:justify-self-end lg:col-span-6" style="--i:5">
+<section class="hero" data-stage-track>
+  <!--
+    Fig. 1, live: the city model as an axonometric drawing (src/three). It stays pinned behind the
+    text while the hero scrolls past, and is only shown where the model can run (html.gl).
+  -->
+  <div class="hero__pin">
+    <div class="hero__stage" data-stage="axo" data-names={JSON.stringify(names)}>
+      <div class="stage__canvas" data-stage-canvas role="img" aria-label={h.modelAlt}></div>
+      <div class="stage__labels" aria-hidden="true">
         {
-          h.tagline.map((word, i) => (
-            <li>
-              <span class="label">
-                <b>E/{String(i + 1).padStart(2, "0")}</b>
+          callouts.map((c) => (
+            <span
+              class:list={["callout", `callout--${c.side}`]}
+              data-at={`${c.x.toFixed(1)} ${c.at} ${c.z.toFixed(1)}`}
+              data-side={c.side}
+              data-rank={c.rank}
+              data-tower={c.id}>
+              <span class="callout__text">
+                {names[c.name] ?? c.name} <b>{c.top} m</b>
               </span>
-              {word}
-            </li>
+            </span>
           ))
         }
-      </ol>
+        <span class="callout callout--right callout--hover" data-hover>
+          <span class="callout__text"><span data-hover-name></span> <b data-hover-height></b></span>
+        </span>
+      </div>
+      <div class="stage__caption wrap">
+        <span class="label whitespace-nowrap">
+          {/* Small screens only get the figure's name. */}
+          {h.model.split(" · ")[0]}<span class="max-lg:hidden"> · {h.model.split(" · ").slice(1).join(" · ")}</span>
+        </span>
+        <span class="stage__hint label"><span aria-hidden="true">↔&ensp;</span>{h.hint}</span>
+        <span class="stage__scale label" aria-hidden="true">
+          <span class="compass">
+            <svg viewBox="0 0 24 24" data-compass>
+              <circle cx="12" cy="12" r="10.5"></circle>
+              <path d="M12 12V1.5M8.5 5.5 12 1.5l3.5 4"></path>
+            </svg>
+            N
+          </span>
+          <span class="max-sm:hidden" data-scale-ratio>1 : 5 000</span>
+          <span class="scale">
+            <span class="max-sm:hidden">0</span>
+            <span class="scale__bar" data-scale-bar></span>
+            <span data-scale-label>500 m</span>
+          </span>
+        </span>
+      </div>
     </div>
   </div>
 
-  <div class="relative mt-auto pb-6">
-    <Skyline caption={h.figure} alt={h.figureAlt} names={lang === "en" ? { EZB: "ECB" } : {}} />
+  <div class="hero__content">
+    <div class="hero__grid" aria-hidden="true"></div>
+
+    <div class="hero__text wrap relative pt-10 pb-12 md:pt-12 md:pb-10">
+      <p class="label intro" style="--i:0">
+        <b>●</b>&ensp;{h.eyebrow}
+        <span class="max-sm:hidden">— Frankfurt am Main</span>
+      </p>
+
+      <h1 class="headline mt-6">
+        <span class="headline__line"><span class="intro" style="--i:1">{h.headline[0]}</span></span>
+        <span class="headline__line">
+          <span class="intro" style="--i:2">
+            {h.headline[1]}
+            <span class="dim">
+              {h.headlineAccent}
+              <!-- The dimension line: the word measured, at the scale the company works at. -->
+              <span class="dim__line" aria-hidden="true"><span class="dim__value">1 : 100 000 000</span></span>
+            </span>
+          </span>
+        </span>
+      </h1>
+
+      <div class="mt-16 grid gap-x-8 gap-y-10 md:mt-[4.5rem] md:grid-cols-12 md:items-end">
+        <div class="intro md:col-span-7 lg:col-span-6" style="--i:4">
+          <p class="max-w-[30rem] text-xl leading-snug tracking-[-0.02em] text-balance md:text-2xl">
+            <span class="text-muted">{h.descriptor}</span>
+            {h.descriptorStrong}
+          </p>
+          <div class="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
+            <a href="#contact" data-mail={encode(EMAIL)} class="btn">{t.nav.cta}<Arrow /></a>
+            <a href="#services" class="group inline-flex items-center gap-2 text-[0.9375rem] font-medium">
+              <span class="link">{h.secondary}</span>
+              <Arrow dir="down" class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-y-0.5" />
+            </a>
+          </div>
+        </div>
+
+        <ol class="tagline intro md:col-span-5 md:justify-self-end lg:col-span-6" style="--i:5">
+          {
+            h.tagline.map((word, i) => (
+              <li>
+                <span class="label">
+                  <b>E/{String(i + 1).padStart(2, "0")}</b>
+                </span>
+                {word}
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+
+    <!-- Fig. 1, static: the same skyline as a line drawing, for everyone without the model. -->
+    <div class="hero__fallback relative mt-auto pb-6">
+      <Skyline caption={h.figure} alt={h.figureAlt} names={names} />
+    </div>
   </div>
+
+  <!-- Scrolling distance during which the model stays pinned and rises. -->
+  <div class="hero__runway" aria-hidden="true"></div>
 </section>
 
 <style>
+  .hero {
+    position: relative;
+  }
+  .hero__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100svh - 4rem);
+  }
+  .hero__pin {
+    display: none;
+  }
+
+  /*
+   * With the model: the stage fills the screen below the header and stays pinned there while the
+   * text and a stretch of empty "runway" scroll over it. Its pin area reaches one screen past the
+   * hero, so the next section slides over the drawing like a new sheet (see Clients.astro). The
+   * static drawing and the paper grid step aside.
+   */
+  :global(.gl) .hero__pin {
+    position: absolute;
+    inset: 0 0 auto;
+    display: block;
+    height: calc(100% + 100svh - 4rem);
+    pointer-events: none;
+  }
+  .hero__stage {
+    position: sticky;
+    top: 4rem;
+    height: calc(100svh - 4rem);
+    overflow: hidden;
+    pointer-events: auto;
+  }
+  :global(.gl) .hero__content {
+    z-index: 1;
+    pointer-events: none;
+  }
+  :global(.gl) .hero__content :is(a, p, ol, .headline__line > span) {
+    pointer-events: auto;
+  }
+  :global(.gl) :is(.hero__fallback, .hero__grid) {
+    display: none;
+  }
+  :global(.gl) .hero__runway {
+    height: 60svh;
+  }
+
+  .stage__canvas,
+  .stage__labels {
+    position: absolute;
+    inset: 0;
+  }
+  .stage__labels {
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .stage__caption {
+    position: absolute;
+    inset: auto 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-top: 3rem;
+    padding-bottom: 1.125rem;
+    background: linear-gradient(transparent, var(--color-surface) 62%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.8s ease 1.2s;
+  }
+  :global(.is-live) > .stage__caption {
+    opacity: 1;
+  }
+  .stage__hint {
+    margin-right: auto;
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--color-line);
+    transition: opacity 0.6s;
+  }
+  :global(.is-touched) .stage__hint {
+    opacity: 0;
+  }
+  .stage__scale {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .compass {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--color-ink);
+  }
+  /* A compass rose lying on the model's ground: it turns and flattens with the view. */
+  .compass svg {
+    width: 1.75rem;
+    overflow: visible;
+    fill: none;
+    stroke-width: 1.25;
+  }
+  .compass circle {
+    stroke: var(--color-muted);
+    stroke-opacity: 0.55;
+  }
+  .compass path {
+    stroke: var(--color-redline);
+  }
+  .scale {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .scale__bar {
+    width: 8rem;
+    height: 5px;
+    border: 1px solid var(--color-ink);
+    background: linear-gradient(90deg, var(--color-ink) 50%, transparent 0) 0 0 / 40% 100%;
+  }
+  .stage__hint {
+    white-space: nowrap;
+  }
+  @media (max-width: 1179px) {
+    .stage__hint {
+      display: none;
+    }
+  }
+  @media (max-width: 639px) {
+    .compass {
+      display: none;
+    }
+  }
+
+  /* Callouts: red leader (drawn in the model), a short tick, name and height. */
+  .callout {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-ink);
+    will-change: transform, opacity;
+  }
+  .callout__text {
+    position: relative;
+    display: block;
+    padding: 0.25rem 0.375rem 0.25rem 1.375rem;
+    background: linear-gradient(
+      90deg,
+      transparent 1rem,
+      color-mix(in srgb, var(--color-surface) 86%, transparent) 1rem
+    );
+    transform: translateY(-50%);
+  }
+  .callout__text::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 1rem;
+    height: 1px;
+    background: var(--color-redline);
+  }
+  .callout--left .callout__text {
+    padding-right: 1.375rem;
+    padding-left: 0.375rem;
+    background: linear-gradient(
+      270deg,
+      transparent 1rem,
+      color-mix(in srgb, var(--color-surface) 86%, transparent) 1rem
+    );
+    transform: translate(-100%, -50%);
+  }
+  .callout--left .callout__text::before {
+    right: 0;
+    left: auto;
+  }
+  .callout b {
+    font-weight: 500;
+    color: var(--color-redline);
+  }
+  .callout--hover {
+    transition: opacity 0.2s;
+  }
+
+  /* With the model, the three words run along one line under the call to action. */
+  @media (min-width: 1024px) {
+    :global(.gl) .tagline {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-self: start;
+      min-width: 0;
+      margin-top: 1rem;
+      font-size: 0.9375rem;
+    }
+    :global(.gl) .tagline li {
+      gap: 0.75rem;
+      padding: 0.625rem 1.75rem 0 0;
+      border-bottom: 0;
+    }
+  }
+  @media (max-width: 1023px) {
+    :global(.gl) .tagline {
+      display: none;
+    }
+  }
+
   /* Drawing-sheet grid, fading out towards the skyline. */
   .hero__grid {
     position: absolute;
