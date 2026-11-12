@@ -3,18 +3,21 @@
 @import "@fontsource-variable/geist-mono/wght.css";
 
 /*
- * The site is drawn like an engineering sheet: warm paper, ink linework and a single red pen
- * ("redline") for dimensions and annotations. Sections that carry `.theme-ink` flip paper and ink.
+ * The site is drawn like an engineering sheet: paper-white stock, ink linework and a single
+ * light-blue pen ("redline") for dimensions and annotations. Sections that carry `.theme-ink`
+ * flip paper and ink. Text set on the pen colour stays dark (`--color-on-redline`): white on
+ * light blue does not read.
  */
 @theme {
   --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono Variable", ui-monospace, Menlo, monospace;
 
-  --color-surface: #f4f2ed;
+  --color-surface: #f7f7f3;
   --color-ink: #0d0f14;
   --color-muted: #5f6269;
   --color-line: rgb(13 15 20 / 0.14);
-  --color-redline: #cf3010;
+  --color-redline: #3096dc;
+  --color-on-redline: #0d0f14;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -35,7 +38,7 @@
   }
   ::selection {
     background: var(--color-redline);
-    color: #fff;
+    color: var(--color-on-redline);
   }
   :focus-visible {
     outline: 2px solid var(--color-redline);
@@ -51,10 +54,10 @@
 
 .theme-ink {
   --color-surface: #0d0f14;
-  --color-ink: #f4f2ed;
+  --color-ink: #f7f7f3;
   --color-muted: #a2a5ad;
-  --color-line: rgb(244 242 237 / 0.16);
-  --color-redline: #ff6a45;
+  --color-line: rgb(247 247 243 / 0.16);
+  --color-redline: #7cc6f4;
   background: var(--color-surface);
   color: var(--color-ink);
 }
@@ -117,7 +120,7 @@
   }
   .btn:hover {
     background: var(--color-redline);
-    color: #fff;
+    color: var(--color-on-redline);
   }
   .btn svg {
     width: 0.875rem;

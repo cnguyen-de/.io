@@ -68,12 +68,12 @@ const FRAME = 1000 / 60;
 /** The two sheets: ink on paper by day, paper on ink at night (same values as global.css). */
 const SHEET = {
   paper: {
-    surface: 0xf4f2ed,
+    surface: 0xf7f7f3,
     ink: 0x0d0f14,
-    red: 0xcf3010,
-    top: 0xfdfcfa,
-    lit: 0xf9f7f3,
-    shade: 0xdcd8cf,
+    red: 0x3096dc,
+    top: 0xffffff,
+    lit: 0xfbfbf8,
+    shade: 0xdedfda,
     shadow: 0.085,
     water: 0.07,
     park: 0.05,
@@ -81,8 +81,8 @@ const SHEET = {
   },
   ink: {
     surface: 0x0d0f14,
-    ink: 0xf4f2ed,
-    red: 0xff6a45,
+    ink: 0xf7f7f3,
+    red: 0x7cc6f4,
     top: 0x1a1e27,
     lit: 0x161a22,
     shade: 0x10131a,
