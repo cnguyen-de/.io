@@ -27,7 +27,10 @@ export const de: Translations = {
     descriptorStrong: "Hunderte Millionen Nutzer.",
     secondary: "Unsere Leistungen",
     figure: "Abb. 1 — Frankfurt am Main · Ansicht von Süden · maßstabsgetreu",
-    figureAlt: "Strichzeichnung der Frankfurter Skyline von Süden, maßstabsgetreu."
+    figureAlt: "Strichzeichnung der Frankfurter Skyline von Süden, maßstabsgetreu.",
+    model: "Abb. 1 — Frankfurt am Main · Axonometrie · maßstabsgetreu",
+    modelAlt: "Dreidimensionale Strichzeichnung der Frankfurter Hochhäuser am Main, maßstabsgetreu.",
+    hint: "Ziehen, um das Modell zu drehen"
   },
   trusted: {
     eyebrow: "Kunden",
@@ -121,7 +124,9 @@ export const de: Translations = {
     heading: "Bereit für Ihr nächstes Projekt?",
     body: "Kontaktieren Sie uns – wir freuen uns auf Ihre Anfrage.",
     copy: "E-Mail-Adresse kopieren",
-    copied: "Kopiert"
+    copied: "Kopiert",
+    figure: "Abb. 3 — Frankfurt am Main · Ansicht von Süden · bei Nacht",
+    figureAlt: "Die Frankfurter Skyline bei Nacht, von Süden gesehen, maßstabsgetreu."
   },
   footer: {
     imprint: "Impressum",

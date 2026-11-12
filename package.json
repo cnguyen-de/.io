@@ -18,9 +18,11 @@
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.1.1",
     "tailwindcss": "^4.2.2",
+    "three": "^0.186.1",
     "typescript": "^5.5.4"
   },
   "devDependencies": {
+    "@types/three": "^0.186.0",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.6.5"

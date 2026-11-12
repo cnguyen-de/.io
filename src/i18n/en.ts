@@ -28,7 +28,11 @@ export const en = {
     descriptorStrong: "hundreds of millions of users.",
     secondary: "Our services",
     figure: "Fig. 1 — Frankfurt am Main · view from the south · true to scale",
-    figureAlt: "Line drawing of the Frankfurt skyline seen from the south, drawn to scale."
+    figureAlt: "Line drawing of the Frankfurt skyline seen from the south, drawn to scale.",
+    // The same city as a 3D model, where the browser can draw it.
+    model: "Fig. 1 — Frankfurt am Main · axonometric · true to scale",
+    modelAlt: "Three-dimensional line drawing of Frankfurt's high-rises along the river Main, true to scale.",
+    hint: "Drag to turn the model"
   },
   trusted: {
     eyebrow: "Clients",
@@ -123,7 +127,9 @@ export const en = {
     heading: "Ready for your next project?",
     body: "Get in touch — we look forward to hearing from you.",
     copy: "Copy email address",
-    copied: "Copied"
+    copied: "Copied",
+    figure: "Fig. 3 — Frankfurt am Main · view from the south · by night",
+    figureAlt: "The Frankfurt skyline at night, seen from the south, drawn to scale."
   },
   footer: {
     imprint: "Imprint",

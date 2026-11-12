@@ -11,7 +11,7 @@ interface Props {
 const t = translations[Astro.props.lang].trusted;
 ---
 
-<section id="clients" class="py-24 md:py-36">
+<section id="clients" class="clients py-24 md:py-36">
   <div class="wrap">
     <SectionHead n={1} eyebrow={t.eyebrow} heading={t.heading} body={t.body} />
 
@@ -39,6 +39,14 @@ const t = translations[Astro.props.lang].trusted;
 </section>
 
 <style>
+  /* With the city model pinned in the hero, this section is the next sheet, laid over the drawing. */
+  :global(.gl) .clients {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--color-line);
+    background: var(--color-surface);
+  }
+
   ol {
     border-bottom: 1px solid var(--color-line);
   }

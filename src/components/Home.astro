@@ -19,7 +19,7 @@ const { lang } = Astro.props;
 const { meta } = translations[lang];
 ---
 
-<Layout lang={lang} title={meta.title} description={meta.description} translated jsonLd={structuredData(lang)}>
+<Layout lang={lang} title={meta.title} description={meta.description} translated model jsonLd={structuredData(lang)}>
   <span id="top"></span>
   <Header lang={lang} />
   <main id="main">
@@ -31,3 +31,18 @@ const { meta } = translations[lang];
   </main>
   <Contact lang={lang} />
 </Layout>
+
+<script>
+  // The city model is an enhancement: it loads after the page, and only where the head script
+  // found WebGL (html.gl). If it cannot start, the static drawings come back.
+  const root = document.documentElement;
+  const stages = [...document.querySelectorAll<HTMLElement>("[data-stage]")];
+  if (root.classList.contains("gl") && stages.length) {
+    import("../three/engine")
+      .then(({ Engine }) => new Engine(stages).start())
+      .catch((error) => {
+        console.warn("City model unavailable, showing the static drawings.", error);
+        root.classList.remove("gl");
+      });
+  }
+</script>

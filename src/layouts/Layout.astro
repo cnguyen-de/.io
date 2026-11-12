@@ -12,14 +12,19 @@ interface Props {
   translated?: boolean;
   /** Structured data for this page (see src/lib/seo.ts). */
   jsonLd?: object;
+  /** The page carries the 3D city model (see src/three/engine.ts). */
+  model?: boolean;
 }
 
-const { lang, title, description, translated = false, jsonLd } = Astro.props;
+const { lang, title, description, translated = false, jsonLd, model = false } = Astro.props;
 
 const siteName = "May Solutions";
 const siteUrl = SITE_URL;
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
 const ogImage = `${siteUrl}/og-image.png`;
+
+// Where WebGL is on hand and motion is welcome, the city model takes over from the static drawings.
+const detectModel = `try{if(window.WebGL2RenderingContext&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("gl")}catch(e){}`;
 
 const forwardGerman = `try{var l=localStorage.getItem("locale")||((navigator.language||"").toLowerCase().indexOf("de")===0?"de":"en");if(l==="de")location.replace("${HOME.de}"+location.hash)}catch(e){}`;
 ---
@@ -36,6 +41,8 @@ const forwardGerman = `try{var l=localStorage.getItem("locale")||((navigator.lan
     <script is:inline>
       document.documentElement.classList.add("js");
     </script>
+    {/* Pages with the 3D model: the static drawings step aside before first paint (html.gl). */}
+    {model && <script is:inline set:html={detectModel} />}
     {/* First visit in a German browser, or German chosen earlier: continue on the German page. */}
     {translated && lang === "en" && <script is:inline set:html={forwardGerman} />}
 
