@@ -60,6 +60,9 @@ const damp = (a: number, b: number, lambda: number, dt: number) => lerp(a, b, 1 
 const rad = (deg: number) => (deg * Math.PI) / 180;
 const rgb = (hex: number) => new Vector3(((hex >> 16) & 255) / 255, ((hex >> 8) & 255) / 255, (hex & 255) / 255);
 
+/** The model is drawn at most 60 times a second; this is one such frame in milliseconds. */
+const FRAME = 1000 / 60;
+
 // --- Style ------------------------------------------------------------------------------------------
 
 /** The two sheets: ink on paper by day, paper on ink at night (same values as global.css). */
@@ -276,6 +279,8 @@ export class Engine {
 
   private raf = 0;
   private last = 0;
+  /** When the last frame was due (ms), for the 60 fps cap. */
+  private drawn = 0;
   private time = 0;
   private dpr = Math.min(window.devicePixelRatio || 1, 2);
   private frames: number[] = [];
@@ -505,6 +510,13 @@ export class Engine {
     const stage = this.active;
     if (!stage) return;
     this.raf = requestAnimationFrame(this.tick);
+
+    // Screens that refresh faster than 60 Hz get every second (or third) frame: the drawing gains
+    // nothing from more, and the battery loses. Time owed from a late frame is carried over, so
+    // refresh rates that are no multiple of 60 still average out to it.
+    const since = now - this.drawn;
+    if (since < FRAME - 1) return;
+    this.drawn = now - clamp(since - FRAME, 0, FRAME);
 
     const dt = Math.min((now - this.last) / 1000, 0.05);
     this.last = now;
