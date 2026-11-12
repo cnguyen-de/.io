@@ -12,7 +12,7 @@ import {
   Vector2
 } from "three";
 import map from "../data/map.json";
-import { PLAN, riedbergArrow } from "../lib/geo";
+import { PLAN } from "../lib/geo";
 import { callouts, towers, type Pt, type Solid, type Tower } from "./model";
 import { LINE, MODE } from "./shaders";
 
@@ -207,14 +207,11 @@ export function build() {
   for (const c of callouts)
     strokes.add([c.x, c.top + 7, c.z], [c.x, c.at, c.z], LINE.leader, MODE.always, UP, UP, towers[c.id], c.rank);
 
-  // Site plan annotations: the scale bar and the arrow towards Riedbergplatz.
+  // Site plan annotation: the scale bar. (The key plan towards Riedberg is an HTML overlay.)
   const x0 = PLAN.minX + 150;
   const z0 = PLAN.minZ + PLAN.height - 150;
   strokes.path([[x0, z0 - 40], [x0, z0], [x0 + 500, z0], [x0 + 500, z0 - 40]], LINE.planInk); // prettier-ignore
   strokes.path([[x0 + 250, z0 - 28], [x0 + 250, z0]], LINE.planInk); // prettier-ignore
-  const arrow = riedbergArrow();
-  strokes.path([arrow.tail, arrow.head], LINE.planRed);
-  strokes.path([arrow.barbs[0], arrow.head, arrow.barbs[1]], LINE.planRed);
 
   // Obstruction lights on everything tall enough to need them.
   const lights: number[] = [];

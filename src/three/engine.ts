@@ -102,8 +102,7 @@ const WIDTHS: Record<keyof typeof LINE, number> = {
   shore: 1,
   edge: 1.15,
   leader: 1,
-  planInk: 1,
-  planRed: 1.15
+  planInk: 1
 };
 
 // --- Poses ------------------------------------------------------------------------------------------
@@ -641,7 +640,6 @@ export class Engine {
     set(LINE.edge, ink, night ? 0.8 : 1);
     set(LINE.leader, red, stage.view === "axo" ? 1 : 0);
     set(LINE.planInk, ink, stage.view === "plan" ? flat : 0);
-    set(LINE.planRed, red, stage.view === "plan" ? flat : 0);
   }
 
   /**

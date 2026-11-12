@@ -13,8 +13,7 @@ export const LINE = {
   shore: 4,
   edge: 5,
   leader: 6,
-  planInk: 7,
-  planRed: 8
+  planInk: 7
 } as const;
 export const LINE_CLASSES = Object.keys(LINE).length;
 /** Callout leaders can be switched off one by one (by the callout's rank). */

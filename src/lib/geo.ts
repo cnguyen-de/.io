@@ -64,23 +64,14 @@ export const RIVER: [lat: number, lon: number][] = [
 ];
 
 /**
- * Riedbergplatz lies about 8 km north-west of the site plan, off the sheet: an arrow near the edge
- * points the way. Returned in local metres, together with the true distance from the centre.
+ * The key plan inset on the site plan: Riedbergplatz lies about 8 km north-west of the sheet, so a
+ * smaller-scale drawing shows the sheet and the square together. Local metres, north up.
  */
-export function riedbergArrow() {
-  const [cx, cz] = toLocal(CITY.lat, CITY.lon);
-  const [rx, rz] = toLocal(RIEDBERG.lat, RIEDBERG.lon);
-  const distance = Math.hypot(rx - cx, rz - cz);
-  const [ux, uz] = [(rx - cx) / distance, (rz - cz) / distance];
-  const tail: [number, number] = [-700, -620];
-  const head: [number, number] = [Math.round(tail[0] + ux * 420), Math.round(tail[1] + uz * 420)];
-  const barb = (deg: number): [number, number] => {
-    const a = (deg * Math.PI) / 180;
-    const [bx, bz] = [-ux, -uz];
-    return [
-      Math.round(head[0] + 80 * (bx * Math.cos(a) - bz * Math.sin(a))),
-      Math.round(head[1] + 80 * (bx * Math.sin(a) + bz * Math.cos(a)))
-    ];
-  };
-  return { tail, head, barbs: [barb(28), barb(-28)], distance };
+export const KEY = { minX: -3900, minZ: -8300, width: 6600, height: 10800 };
+
+/** Riedbergplatz and the city centre in local metres, and the true distance between them. */
+export function riedberg() {
+  const city = toLocal(CITY.lat, CITY.lon);
+  const pin = toLocal(RIEDBERG.lat, RIEDBERG.lon);
+  return { city, pin, distance: Math.hypot(pin[0] - city[0], pin[1] - city[1]) };
 }

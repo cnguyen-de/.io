@@ -119,7 +119,9 @@ export const en = {
       north: "N",
       river: "Main",
       fair: "Messe",
-      banks: "Banking district"
+      banks: "Banking district",
+      key: "Key plan",
+      sheet: "Fig. 2"
     }
   },
   contact: {

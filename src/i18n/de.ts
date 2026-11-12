@@ -116,7 +116,9 @@ export const de: Translations = {
       north: "N",
       river: "Main",
       fair: "Messe",
-      banks: "Bankenviertel"
+      banks: "Bankenviertel",
+      key: "Übersichtsplan",
+      sheet: "Abb. 2"
     }
   },
   contact: {
