@@ -7,6 +7,7 @@ export const en = {
   nav: {
     skip: "Skip to content",
     clients: "Clients",
+    work: "Work",
     services: "Services",
     stack: "Technologies",
     location: "Frankfurt",
@@ -48,8 +49,9 @@ export const en = {
   },
   work: {
     eyebrow: "Work",
-    heading: "Featured work",
-    open: "View project"
+    heading: "Selected work",
+    body: "A store we led for Mercedes-Benz, and two apps of our own, built local-first.",
+    visit: "Visit website"
   },
   services: {
     eyebrow: "Services",

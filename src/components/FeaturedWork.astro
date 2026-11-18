@@ -1,5 +1,5 @@
 ---
-import { featuredWork } from "../data/featured-work";
+import { PROJECTS } from "../data/featured-work";
 import { translations, type Locale } from "../i18n";
 import Arrow from "./Arrow.astro";
 import SectionHead from "./SectionHead.astro";
@@ -8,94 +8,78 @@ interface Props {
   lang: Locale;
 }
 
-const project = featuredWork.copy[Astro.props.lang];
-const t = translations[Astro.props.lang].work;
+const { lang } = Astro.props;
+const t = translations[lang].work;
 ---
 
 <section id="work" class="py-24 md:py-36">
   <div class="wrap">
-    <SectionHead n={1} eyebrow={t.eyebrow} heading={t.heading} />
+    <SectionHead n={1} eyebrow={t.eyebrow} heading={t.heading} body={t.body} />
 
-    <article class="mt-14 md:mt-20" data-reveal>
+    <!-- Laid out like the services: number and kind, the project itself, and its spec sheet. -->
+    <div class="mt-14 md:mt-20">
       {
-        featuredWork.image ? (
-          <img class="figure" src={featuredWork.image} alt={project.imageAlt ?? ""} loading="lazy" />
-        ) : (
-          // Until there is a screenshot: a stack of drawing sheets on the paper grid.
-          <div class="figure preview" aria-hidden="true">
-            <div class="sheets">
-              <i />
-              <i />
-              <i />
-            </div>
-          </div>
-        )
+        PROJECTS.map((p, i) => {
+          const c = p.copy[lang];
+          return (
+            <article class="project">
+              <header class="project__head" data-reveal>
+                <span class="project__n">{String(i + 1).padStart(2, "0")}</span>
+                <p class="label">{c.kind}</p>
+              </header>
+
+              <div data-reveal style="--i:1">
+                <h3 class="project__name">{p.name}</h3>
+                <p class="lede mt-5 max-w-[34rem]">{c.body}</p>
+                <a
+                  href={p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group mt-6 inline-flex items-center gap-2 text-[0.9375rem] font-medium"
+                  aria-label={`${p.name} (${t.visit})`}>
+                  <span class="link">{new URL(p.url).host}</span>
+                  <Arrow dir="out" class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
+                </a>
+              </div>
+
+              <dl class="project__spec" data-reveal style="--i:2">
+                {c.rows.map(([label, detail]) => (
+                  <div>
+                    <dt>{label}</dt>
+                    <dd>{detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </article>
+          );
+        })
       }
-      <div class="copy">
-        <h3>{project.title}</h3>
-        <p class="lede mt-4">{project.description}</p>
-        {
-          featuredWork.url && (
-            <a class="btn mt-8" href={featuredWork.url}>
-              {t.open}
-              <Arrow dir="out" />
-            </a>
-          )
-        }
-      </div>
-    </article>
+    </div>
   </div>
 </section>
 
 <style>
-  article {
+  .project {
     display: grid;
-    border-block: 1px solid var(--color-line);
+    gap: 1.75rem;
+    padding-block: 2.5rem;
+    border-top: 1px solid var(--color-line);
   }
-  .figure {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    border-bottom: 1px solid var(--color-line);
+  .project:last-child {
+    padding-bottom: 0;
   }
-  .preview {
-    min-height: 13rem;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    background-image:
-      linear-gradient(var(--color-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
-    background-size: 2rem 2rem;
-    background-position: center;
+  .project__head {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
   }
-  .sheets {
-    position: relative;
-    width: 9rem;
-    height: 9rem;
-    transform: rotate(-32deg) skew(18deg, 8deg) scaleY(0.77);
+  .project__n {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    color: var(--color-redline);
   }
-  i {
-    position: absolute;
-    inset: 0;
-    border: 1px solid var(--color-ink);
-    background: var(--color-surface);
-    transform: translate(-1.5rem, 2.5rem);
-  }
-  i:nth-child(2) {
-    transform: translate(-0.75rem, 1.25rem);
-  }
-  i:last-child {
-    transform: none;
-    border-color: var(--color-redline);
-    background:
-      repeating-linear-gradient(90deg, transparent 0 12px, var(--color-line) 12px 13px), var(--color-surface);
-  }
-  .copy {
-    align-self: center;
-    padding-block: 2rem;
-  }
-  h3 {
+  .project__name {
     font-size: clamp(1.75rem, 3.3vw, 3rem);
     line-height: 1.04;
     font-weight: 540;
@@ -103,19 +87,48 @@ const t = translations[Astro.props.lang].work;
     text-wrap: balance;
   }
 
-  @media (min-width: 768px) {
-    article {
-      grid-template-columns: 7fr 5fr;
+  .project__spec {
+    align-self: start;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .project__spec > div {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 0.75rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .project__spec dt {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .project__spec dd {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    text-wrap: balance;
+  }
+
+  @media (min-width: 1024px) {
+    .project {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 2rem;
+      padding-block: 3.5rem;
     }
-    .figure {
-      border-bottom: 0;
-      border-right: 1px solid var(--color-line);
+    .project__head {
+      grid-column: span 2;
+      flex-direction: column;
+      gap: 0.75rem;
     }
-    .preview {
-      min-height: 18rem;
+    .project > div {
+      grid-column: span 6;
     }
-    .copy {
-      padding: 3rem clamp(2rem, 4vw, 4rem);
+    .project__spec {
+      grid-column: span 4;
     }
   }
 </style>

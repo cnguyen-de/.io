@@ -17,6 +17,7 @@ const base = home ? "" : HOME[lang];
 
 const links = [
   ["#clients", t.clients],
+  ["#work", t.work],
   ["#services", t.services],
   ["#stack", t.stack],
   ["#frankfurt", t.location]
@@ -36,7 +37,7 @@ const links = [
       <span class="text-[1.0625rem] font-semibold tracking-[-0.03em] whitespace-nowrap">May Solutions</span>
     </a>
 
-    <nav class="hidden items-center gap-8 md:flex" aria-label="Main">
+    <nav class="hidden items-center gap-8 lg:flex" aria-label="Main">
       {
         home &&
           links.map(([href, label]) => (

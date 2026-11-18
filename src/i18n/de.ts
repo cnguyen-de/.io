@@ -9,6 +9,7 @@ export const de: Translations = {
   nav: {
     skip: "Zum Inhalt springen",
     clients: "Kunden",
+    work: "Projekte",
     services: "Leistungen",
     stack: "Technologien",
     location: "Frankfurt",
@@ -47,7 +48,8 @@ export const de: Translations = {
   work: {
     eyebrow: "Projekte",
     heading: "Ausgewählte Projekte",
-    open: "Projekt ansehen"
+    body: "Ein Store, dessen Entwicklung wir für Mercedes-Benz geleitet haben, und zwei eigene Apps, local-first gebaut.",
+    visit: "Website besuchen"
   },
   services: {
     eyebrow: "Leistungen",
