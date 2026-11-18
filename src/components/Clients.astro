@@ -1,146 +1,96 @@
 ---
 import { CLIENTS } from "../data/clients";
 import { translations, type Locale } from "../i18n";
-import Arrow from "./Arrow.astro";
-import SectionHead from "./SectionHead.astro";
-
 interface Props {
   lang: Locale;
 }
-
 const t = translations[Astro.props.lang].trusted;
 ---
 
-<section id="clients" class="clients py-24 md:py-36">
-  <div class="wrap">
-    <SectionHead n={1} eyebrow={t.eyebrow} heading={t.heading} body={t.body} />
-
-    <!-- The names are the headline: one row each, the whole row is the link. -->
-    <ol class="mt-14 md:mt-20">
+<section id="clients" class="clients">
+  <div class="wrap strip">
+    <h2 class="label">{t.heading}</h2>
+    <ul>
       {
-        CLIENTS.map((c, i) => (
-          <li data-reveal style={`--i:${i}`}>
+        CLIENTS.map((c) => (
+          <li>
             <a
               href={c.href}
               target="_blank"
               rel="noopener noreferrer"
-              class="row"
+              class={c.id}
               aria-label={`${c.name}, ${t.sectors[c.id]} (${t.visit})`}>
-              <span class="row__n">{String(i + 1).padStart(2, "0")}</span>
-              <span class="row__name">{c.name}</span>
-              <span class="row__sector">{t.sectors[c.id]}</span>
-              <Arrow dir="out" class="row__arrow" />
+              {c.name}
             </a>
           </li>
         ))
       }
-    </ol>
+    </ul>
   </div>
 </section>
-
 <style>
-  /* With the city model pinned in the hero, this section is the next sheet, laid over the drawing. */
-  :global(.gl) .clients {
-    position: relative;
-    z-index: 2;
-    border-top: 1px solid var(--color-line);
-    background: var(--color-surface);
+  .clients {
+    border-block: 1px solid var(--color-line);
   }
-
-  ol {
-    border-bottom: 1px solid var(--color-line);
+  .strip {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 4vw, 4rem);
+    padding-block: 1.65rem;
   }
-  .row {
-    position: relative;
-    display: grid;
-    grid-template-columns: 2.25rem 1fr 1.25rem;
-    align-items: baseline;
-    column-gap: 0.5rem;
-    padding: 1.375rem 0 1.125rem;
-    border-top: 1px solid var(--color-line);
-    isolation: isolate;
-    transition: color 0.35s;
+  h2 {
+    flex: none;
   }
-  /* On hover the row is inked in from below and the text flips to paper. */
-  .row::before {
-    content: "";
-    position: absolute;
-    inset: 0 calc(clamp(1.25rem, 4.5vw, 4rem) * -0.5);
-    z-index: -1;
-    background: var(--color-ink);
-    transform: scaleY(0);
-    transform-origin: bottom;
-    transition: transform 0.5s var(--ease-out-expo);
+  ul {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
   }
-  .row__n,
-  .row__sector {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    transition: color 0.35s;
+  a {
+    display: inline-block;
+    color: #455248;
+    font-size: clamp(1rem, 1.6vw, 1.55rem);
+    font-weight: 620;
+    letter-spacing: -0.055em;
+    transition: color 0.2s;
   }
-  .row__name {
-    font-size: clamp(1.875rem, 5.2vw, 4.5rem);
-    line-height: 1;
-    font-weight: 540;
-    letter-spacing: -0.045em;
-    transition: transform 0.5s var(--ease-out-expo);
+  a:hover {
+    color: #17271c;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
-  .row__sector {
-    grid-column: 2;
-    margin-top: 0.5rem;
+  .mercedesBenzIo {
+    font:
+      normal clamp(1rem, 1.6vw, 1.55rem) Georgia,
+      serif;
+    letter-spacing: -0.055em;
   }
-  .row :global(.row__arrow) {
-    grid-column: 3;
-    grid-row: 1;
-    align-self: center;
-    width: 1.125rem;
-    height: 1.125rem;
-    color: var(--color-muted);
-    transition:
-      color 0.35s,
-      transform 0.5s var(--ease-out-expo);
+  .lbbw {
+    font-weight: 800;
+    letter-spacing: -0.04em;
   }
-
-  @media (min-width: 768px) {
-    .row {
-      grid-template-columns: 4rem 1fr auto 3rem;
-      column-gap: 1.5rem;
-      padding: 2rem 0 1.5rem;
+  .bilfinger {
+    font-weight: 730;
+  }
+  .thinkcell {
+    font-style: italic;
+  }
+  @media (max-width: 780px) {
+    .strip {
+      display: block;
     }
-    .row__sector {
-      grid-column: 3;
-      margin-top: 0;
-    }
-    .row :global(.row__arrow) {
-      grid-column: 4;
-      justify-self: end;
-      width: 1.75rem;
-      height: 1.75rem;
+    ul {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 1rem;
+      gap: 1rem 0.5rem;
     }
   }
-
-  @media (hover: hover) {
-    .row:hover {
-      color: var(--color-surface);
-    }
-    .row:hover::before {
-      transform: scaleY(1);
-    }
-    .row:hover .row__name {
-      transform: translateX(0.75rem);
-    }
-    .row:hover .row__n {
-      color: var(--color-redline);
-    }
-    .row:hover .row__sector {
-      color: color-mix(in srgb, var(--color-surface) 70%, transparent);
-    }
-    .row:hover :global(.row__arrow) {
-      color: var(--color-surface);
-      transform: translateX(0.3rem);
+  @media (max-width: 420px) {
+    ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 </style>

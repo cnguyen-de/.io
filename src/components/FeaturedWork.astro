@@ -1,0 +1,112 @@
+---
+import { featuredWork } from "../data/featured-work";
+import Arrow from "./Arrow.astro";
+import { translations, type Locale } from "../i18n";
+interface Props {
+  lang: Locale;
+}
+const project = featuredWork.copy[Astro.props.lang];
+const t = translations[Astro.props.lang].work;
+---
+
+<section id="work" class="wrap work" aria-labelledby="work-heading">
+  <h2 id="work-heading" class="display">{t.heading}</h2>
+  <article>
+    {
+      featuredWork.image ? (
+        <img class="product-image" src={featuredWork.image} alt={project.imageAlt ?? ""} loading="lazy" />
+      ) : (
+        <div class="preview" aria-hidden="true">
+          <div class="sheets">
+            <>
+              <i />
+              <i />
+              <i />
+            </>
+          </div>
+        </div>
+      )
+    }
+    <div class="copy">
+      <h3>{project.title}</h3>
+      <p class="lede">{project.description}</p>
+      {
+        featuredWork.url && (
+          <a class="btn mt-5" href={featuredWork.url}>
+            {t.open}
+            <Arrow dir="out" />
+          </a>
+        )
+      }
+    </div>
+  </article>
+</section>
+<style>
+  .work {
+    padding-block: clamp(3.5rem, 6vw, 6.5rem);
+  }
+  article {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    margin-top: 2rem;
+    border: 1px solid var(--color-line);
+    border-radius: 1rem;
+    overflow: hidden;
+    background: #edeee5;
+  }
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #dbe4ce;
+  }
+  .preview {
+    min-height: 16rem;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background-color: #dbe4ce;
+    background-image:
+      linear-gradient(#49674313 1px, transparent 1px), linear-gradient(90deg, #49674313 1px, transparent 1px);
+    background-size: 2rem 2rem;
+  }
+  .sheets {
+    position: relative;
+    width: 9rem;
+    height: 9rem;
+    transform: rotate(-32deg) skew(18deg, 8deg) scaleY(0.77);
+  }
+  i {
+    position: absolute;
+    inset: 0;
+    border: 1px solid #435e44;
+    border-radius: 0.55rem;
+    background: #56765d;
+    transform: translate(-1.5rem, 2.5rem);
+  }
+  i:nth-child(2) {
+    background: #91ab84;
+    transform: translate(-0.75rem, 1.25rem);
+  }
+  i:last-child {
+    transform: none;
+    background: repeating-linear-gradient(90deg, transparent 0 12px, #48654755 12px 13px), #d1e5a9;
+  }
+  .copy {
+    align-self: center;
+    padding: clamp(1.5rem, 4vw, 4rem);
+  }
+  h3 {
+    font-size: clamp(1.9rem, 3vw, 3.3rem);
+    letter-spacing: -0.06em;
+    margin-bottom: 0.75rem;
+  }
+  @media (max-width: 700px) {
+    article {
+      grid-template-columns: 1fr;
+    }
+    .preview {
+      min-height: 13rem;
+    }
+  }
+</style>

@@ -5,6 +5,7 @@ import Layout from "../layouts/Layout.astro";
 import { structuredData } from "../lib/seo";
 import Clients from "./Clients.astro";
 import Contact from "./Contact.astro";
+import FeaturedWork from "./FeaturedWork.astro";
 import Header from "./Header.astro";
 import Hero from "./Hero.astro";
 import Location from "./Location.astro";
@@ -24,10 +25,13 @@ const { meta } = translations[lang];
   <Header lang={lang} />
   <main id="main">
     <Hero lang={lang} />
-    <Clients lang={lang} />
-    <Services lang={lang} />
-    <Stack lang={lang} />
-    <Location lang={lang} />
+    <div class="bg-surface relative z-2">
+      <Clients lang={lang} />
+      <FeaturedWork lang={lang} />
+      <Services lang={lang} />
+      <Stack lang={lang} />
+      <Location lang={lang} />
+    </div>
   </main>
   <Contact lang={lang} />
 </Layout>

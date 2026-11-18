@@ -46,6 +46,10 @@ export const de: Translations = {
       thinkcell: "Technologie"
     }
   },
+  work: {
+    heading: "Ausgewählte Projekte",
+    open: "Projekt ansehen"
+  },
   services: {
     eyebrow: "Leistungen",
     heading: "Unsere Leistungen",

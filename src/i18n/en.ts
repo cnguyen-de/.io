@@ -48,6 +48,10 @@ export const en = {
       thinkcell: "Technology"
     }
   },
+  work: {
+    heading: "Featured work",
+    open: "View project"
+  },
   services: {
     eyebrow: "Services",
     heading: "Our services",
