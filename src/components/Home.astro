@@ -24,10 +24,12 @@ const { meta } = translations[lang];
   <span id="top"></span>
   <Header lang={lang} />
   <main id="main">
-    <Hero lang={lang} />
-    <div class="bg-surface relative z-2">
-      <Clients lang={lang} />
-      <FeaturedWork lang={lang} />
+    <div class="overflow-clip">
+      <Hero lang={lang} />
+      <div class="bg-surface relative z-2">
+        <Clients lang={lang} />
+        <FeaturedWork lang={lang} />
+      </div>
     </div>
     <Services lang={lang} />
     <Stack lang={lang} />
