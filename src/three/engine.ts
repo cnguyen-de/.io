@@ -422,8 +422,30 @@ export class Engine {
 
   // --- Which stage is being drawn -------------------------------------------------------------------
 
+  /**
+   * Of the stages near the screen, the one showing the most of itself on it. On tall screens two
+   * can be near at once (the site plan and the night view): the first in page order is not enough.
+   */
+  private best() {
+    if (document.hidden) return null;
+    const vh = window.innerHeight;
+    const shown = (s: Stage) => {
+      const r = s.el.getBoundingClientRect();
+      return Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+    };
+    // The current stage keeps the canvas on a tie, so it does not flicker between two.
+    let best = this.active?.visible ? this.active : null;
+    let most = best ? shown(best) : -1;
+    for (const s of this.stages) {
+      if (!s.visible || s === best) continue;
+      const v = shown(s);
+      if (v > most) [best, most] = [s, v];
+    }
+    return best;
+  }
+
   private choose = () => {
-    const next = document.hidden ? null : (this.stages.find((s) => s.visible) ?? null);
+    const next = this.best();
     if (next !== this.active) {
       this.active = next;
       this.pose = null;
@@ -516,6 +538,12 @@ export class Engine {
     const since = now - this.drawn;
     if (since < FRAME - 1) return;
     this.drawn = now - clamp(since - FRAME, 0, FRAME);
+
+    // Scrolling between two stages that are both near the screen fires no observer event.
+    if (this.stages.filter((s) => s.visible).length > 1) {
+      this.choose();
+      if (this.active !== stage) return;
+    }
 
     const dt = Math.min((now - this.last) / 1000, 0.05);
     this.last = now;
