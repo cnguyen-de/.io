@@ -50,7 +50,6 @@ export const en = {
   work: {
     eyebrow: "Work",
     heading: "Selected work",
-    body: "A store we led for Mercedes-Benz, and two apps of our own, built local-first.",
     visit: "Visit website"
   },
   services: {

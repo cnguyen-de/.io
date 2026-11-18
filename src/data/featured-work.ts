@@ -3,89 +3,69 @@ import type { Locale } from "../i18n";
 interface Project {
   name: string;
   url: string;
+  /** Which line drawing the card shows (FeaturedWork.astro). */
+  figure: "store" | "time" | "list";
   copy: Record<
     Locale,
     {
-      /** Small label above the name: what kind of work it is. */
       kind: string;
       body: string;
-      /** Spec sheet rows: [label, detail]. */
-      rows: [string, string][];
+      /** Key facts, run together in one line under the text. */
+      facts: string[];
     }
   >;
 }
 
-/** Projects in the order they are shown in the work section. */
+/** Projects in the order they are shown; the first one gets the wide card. */
 export const PROJECTS: Project[] = [
   {
     name: "Mercedes-Benz Store",
     url: "https://shop.mercedes-benz.com/de-de/connect/",
+    figure: "store",
     copy: {
       en: {
-        kind: "E-commerce · Automotive",
-        body: "The online store for digital extras for Mercedes-Benz vehicles, bought with a single login. We led its development for two and a half years.",
-        rows: [
-          ["Client", "Mercedes-Benz"],
-          ["Role", "Development lead"],
-          ["Duration", "2.5 years"]
-        ]
+        kind: "Client project",
+        body: "The store for digital extras for Mercedes-Benz vehicles. We led its development.",
+        facts: ["E-commerce", "Development lead", "2.5 years"]
       },
       de: {
-        kind: "E-Commerce · Automobil",
-        body: "Der Online-Store für digitale Extras rund um Mercedes-Benz Fahrzeuge, mit einem einzigen Login. Wir haben die Entwicklung zweieinhalb Jahre lang geleitet.",
-        rows: [
-          ["Kunde", "Mercedes-Benz"],
-          ["Rolle", "Entwicklungsleitung"],
-          ["Dauer", "2,5 Jahre"]
-        ]
+        kind: "Kundenprojekt",
+        body: "Der Store für digitale Extras rund um Mercedes-Benz Fahrzeuge. Wir haben die Entwicklung geleitet.",
+        facts: ["E-Commerce", "Entwicklungsleitung", "2,5 Jahre"]
       }
     }
   },
   {
     name: "Time Management",
     url: "https://time.may-solutions.io/",
+    figure: "time",
     copy: {
       en: {
-        kind: "Own product · Time tracking",
-        body: "Time tracking for contracts and planned hours, built privacy first. Your data never leaves your device; if you choose to sync for convenience, it is end-to-end encrypted.",
-        rows: [
-          ["Platform", "Progressive web app"],
-          ["Data", "Local-first, stays on the device"],
-          ["Sync", "Optional, end-to-end encrypted"]
-        ]
+        kind: "Own product",
+        body: "Time tracking for contracts and planned hours. Your data never leaves your device.",
+        facts: ["PWA", "Local-first", "End-to-end encrypted sync"]
       },
       de: {
-        kind: "Eigenes Produkt · Zeiterfassung",
-        body: "Zeiterfassung für Verträge und geplante Stunden, mit Datenschutz an erster Stelle. Ihre Daten verlassen das Gerät nicht; wer bequem synchronisieren möchte, tut das Ende-zu-Ende-verschlüsselt.",
-        rows: [
-          ["Plattform", "Progressive Web App"],
-          ["Daten", "Local-first, bleiben auf dem Gerät"],
-          ["Sync", "Optional, Ende-zu-Ende-verschlüsselt"]
-        ]
+        kind: "Eigenes Produkt",
+        body: "Zeiterfassung für Verträge und geplante Stunden. Ihre Daten verlassen Ihr Gerät nicht.",
+        facts: ["PWA", "Local-first", "Ende-zu-Ende-verschlüsselter Sync"]
       }
     }
   },
   {
     name: "Fooderino",
     url: "https://fooderino.app/",
+    figure: "list",
     copy: {
       en: {
-        kind: "Own product · Shopping list",
-        body: "A smart shopping list that suggests what to buy, based on what you have bought before. Mobile-first and local-first: your data stays on your device, and sync is end-to-end encrypted.",
-        rows: [
-          ["Platform", "Progressive web app, mobile-first"],
-          ["Suggestions", "From your own shopping history"],
-          ["Data", "Local-first, end-to-end encrypted sync"]
-        ]
+        kind: "Own product",
+        body: "A shopping list that suggests what to buy, based on what you bought before.",
+        facts: ["Mobile-first PWA", "Local-first", "End-to-end encrypted"]
       },
       de: {
-        kind: "Eigenes Produkt · Einkaufsliste",
-        body: "Eine smarte Einkaufsliste, die vorschlägt, was Sie kaufen sollten, auf Basis Ihrer bisherigen Einkäufe. Mobile-first und local-first: Ihre Daten bleiben auf dem Gerät, die Synchronisierung ist Ende-zu-Ende-verschlüsselt.",
-        rows: [
-          ["Plattform", "Progressive Web App, mobile-first"],
-          ["Vorschläge", "Aus Ihrer eigenen Einkaufshistorie"],
-          ["Daten", "Local-first, Ende-zu-Ende-verschlüsselter Sync"]
-        ]
+        kind: "Eigenes Produkt",
+        body: "Eine Einkaufsliste, die vorschlägt, was Sie brauchen, auf Basis Ihrer bisherigen Einkäufe.",
+        facts: ["Mobile-first PWA", "Local-first", "Ende-zu-Ende-verschlüsselt"]
       }
     }
   }

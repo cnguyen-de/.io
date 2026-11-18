@@ -48,7 +48,6 @@ export const de: Translations = {
   work: {
     eyebrow: "Projekte",
     heading: "Ausgewählte Projekte",
-    body: "Ein Store, dessen Entwicklung wir für Mercedes-Benz geleitet haben, und zwei eigene Apps, local-first gebaut.",
     visit: "Website besuchen"
   },
   services: {

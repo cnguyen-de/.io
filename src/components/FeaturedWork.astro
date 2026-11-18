@@ -14,43 +14,76 @@ const t = translations[lang].work;
 
 <section id="work" class="py-24 md:py-36">
   <div class="wrap">
-    <SectionHead n={1} eyebrow={t.eyebrow} heading={t.heading} body={t.body} />
+    <SectionHead n={1} eyebrow={t.eyebrow} heading={t.heading} />
 
-    <!-- Laid out like the services: number and kind, the project itself, and its spec sheet. -->
-    <div class="mt-14 md:mt-20">
+    <div class="cards mt-14 md:mt-20">
       {
         PROJECTS.map((p, i) => {
           const c = p.copy[lang];
           return (
-            <article class="project">
-              <header class="project__head" data-reveal>
-                <span class="project__n">{String(i + 1).padStart(2, "0")}</span>
-                <p class="label">{c.kind}</p>
-              </header>
-
-              <div data-reveal style="--i:1">
-                <h3 class="project__name">{p.name}</h3>
-                <p class="lede mt-5 max-w-[34rem]">{c.body}</p>
-                <a
-                  href={p.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="group mt-6 inline-flex items-center gap-2 text-[0.9375rem] font-medium"
-                  aria-label={`${p.name} (${t.visit})`}>
-                  <span class="link">{new URL(p.url).host}</span>
-                  <Arrow dir="out" class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
-                </a>
+            <a
+              class="card"
+              href={p.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${p.name} (${t.visit})`}
+              data-reveal
+              style={`--i:${i}`}>
+              {/* A stack of drawing sheets on the paper grid; the top sheet sketches the product. */}
+              <div class="figure" aria-hidden="true">
+                <div class="sheets">
+                  <i />
+                  <i />
+                  <svg viewBox="0 0 144 144">
+                    <rect class="sheet" x="0.5" y="0.5" width="143" height="143" rx="6" />
+                    {p.figure === "store" && (
+                      <>
+                        <path d="M1 24h142" />
+                        <circle cx="12" cy="12.5" r="2.5" />
+                        <circle cx="21" cy="12.5" r="2.5" />
+                        <circle cx="30" cy="12.5" r="2.5" />
+                        <rect x="16" y="36" width="112" height="26" rx="2" />
+                        <rect x="16" y="72" width="32" height="40" rx="2" />
+                        <rect class="pen" x="56" y="72" width="32" height="40" rx="2" />
+                        <rect x="96" y="72" width="32" height="40" rx="2" />
+                        <rect class="pen fill" x="16" y="122" width="40" height="8" rx="4" />
+                      </>
+                    )}
+                    {p.figure === "time" && (
+                      <>
+                        <circle cx="34" cy="34" r="16" />
+                        <path d="M34 24v10l7 5" />
+                        <path d="M16 124h112" />
+                        {[44, 66, 52, 78, 36, 18, 10].map((h, d) => (
+                          <rect class:list={[d === 3 && "pen"]} x={20 + d * 15} y={124 - h} width="10" height={h} />
+                        ))}
+                      </>
+                    )}
+                    {p.figure === "list" && (
+                      <>
+                        {[66, 82, 54, 74, 60].map((w, r) => (
+                          <>
+                            <rect class:list={[r < 2 && "pen"]} x="18" y={18 + r * 24} width="12" height="12" rx="2" />
+                            <path class:list={[r < 2 && "done"]} d={`M40 ${24 + r * 24}h${w}`} />
+                            {r < 2 && <path class="pen" d={`M21 ${24 + r * 24}l3 3 5-6`} />}
+                          </>
+                        ))}
+                      </>
+                    )}
+                  </svg>
+                </div>
               </div>
 
-              <dl class="project__spec" data-reveal style="--i:2">
-                {c.rows.map(([label, detail]) => (
-                  <div>
-                    <dt>{label}</dt>
-                    <dd>{detail}</dd>
-                  </div>
-                ))}
-              </dl>
-            </article>
+              <div class="copy">
+                <p class="label">{c.kind}</p>
+                <h3 class="mt-3 flex items-start justify-between gap-4">
+                  {p.name}
+                  <Arrow dir="out" class="arrow" />
+                </h3>
+                <p class="lede mt-3">{c.body}</p>
+                <p class="label mt-6">{c.facts.join(" · ")}</p>
+              </div>
+            </a>
           );
         })
       }
@@ -59,76 +92,131 @@ const t = translations[lang].work;
 </section>
 
 <style>
-  .project {
+  .cards {
     display: grid;
-    gap: 1.75rem;
-    padding-block: 2.5rem;
-    border-top: 1px solid var(--color-line);
+    gap: 1.25rem;
   }
-  .project:last-child {
-    padding-bottom: 0;
+  .card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--color-ink) 3%, var(--color-surface));
+    transition: border-color 0.35s;
   }
-  .project__head {
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
+  .card:hover {
+    border-color: var(--color-ink);
   }
-  .project__n {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.12em;
-    color: var(--color-redline);
+
+  .figure {
+    display: grid;
+    place-items: center;
+    min-height: 14rem;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+    background-image:
+      linear-gradient(var(--color-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+    background-position: center;
   }
-  .project__name {
-    font-size: clamp(1.75rem, 3.3vw, 3rem);
-    line-height: 1.04;
+  /* The sheets lie on the table in the same axonometric view as Fig. 1, and lift a little on hover. */
+  .sheets {
+    position: relative;
+    width: 8rem;
+    height: 8rem;
+    transform: rotate(-32deg) skew(18deg, 8deg) scaleY(0.77);
+  }
+  .sheets > * {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.6s var(--ease-out-expo);
+  }
+  i {
+    border: 1px solid var(--color-ink);
+    border-radius: 0.375rem;
+    background: var(--color-surface);
+    transform: translate(-1.25rem, 2rem);
+  }
+  i:nth-child(2) {
+    transform: translate(-0.625rem, 1rem);
+  }
+  .card:hover i:first-child {
+    transform: translate(-1.5rem, 2.5rem);
+  }
+  .card:hover svg {
+    transform: translate(0.375rem, -0.75rem);
+  }
+  svg {
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-ink);
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  svg .sheet {
+    fill: var(--color-surface);
+  }
+  svg .pen {
+    stroke: var(--color-redline);
+  }
+  svg .fill {
+    fill: var(--color-redline);
+  }
+  svg .done {
+    stroke: var(--color-muted);
+    stroke-dasharray: 2 3;
+  }
+
+  .copy {
+    padding: 1.75rem clamp(1.5rem, 3vw, 2.5rem) 2rem;
+  }
+  h3 {
+    font-size: clamp(1.625rem, 2.6vw, 2.25rem);
+    line-height: 1.05;
     font-weight: 540;
     letter-spacing: -0.04em;
-    text-wrap: balance;
   }
-
-  .project__spec {
-    align-self: start;
-    border-bottom: 1px solid var(--color-line);
-  }
-  .project__spec > div {
-    display: grid;
-    grid-template-columns: 8.5rem 1fr;
-    align-items: baseline;
-    gap: 1rem;
-    padding-block: 0.75rem;
-    border-top: 1px solid var(--color-line);
-  }
-  .project__spec dt {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    line-height: 1.4;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+  h3 :global(.arrow) {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.25rem;
     color: var(--color-muted);
+    transition:
+      color 0.35s,
+      transform 0.5s var(--ease-out-expo);
   }
-  .project__spec dd {
-    font-size: 0.9375rem;
-    line-height: 1.4;
-    text-wrap: balance;
+  .card:hover h3 :global(.arrow) {
+    color: var(--color-redline);
+    transform: translate(0.2rem, -0.2rem);
   }
 
-  @media (min-width: 1024px) {
-    .project {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      column-gap: 2rem;
-      padding-block: 3.5rem;
+  @media (min-width: 768px) {
+    .cards {
+      grid-template-columns: 1fr 1fr;
     }
-    .project__head {
-      grid-column: span 2;
-      flex-direction: column;
-      gap: 0.75rem;
+    /* The lead project gets the full width: drawing on the left, text on the right. */
+    .card:first-child {
+      grid-column: 1 / -1;
+      grid-template-rows: none;
+      grid-template-columns: 7fr 5fr;
     }
-    .project > div {
-      grid-column: span 6;
+    .card:first-child .figure {
+      min-height: 22rem;
+      border-bottom: 0;
+      border-right: 1px solid var(--color-line);
     }
-    .project__spec {
-      grid-column: span 4;
+    .card:first-child .sheets {
+      width: 10rem;
+      height: 10rem;
+    }
+    .card:first-child .copy {
+      align-self: center;
+      padding: 3rem clamp(2rem, 4vw, 4rem);
     }
   }
 </style>
