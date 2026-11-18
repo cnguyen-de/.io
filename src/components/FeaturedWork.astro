@@ -1,74 +1,73 @@
 ---
 import { featuredWork } from "../data/featured-work";
-import Arrow from "./Arrow.astro";
 import { translations, type Locale } from "../i18n";
+import Arrow from "./Arrow.astro";
+import SectionHead from "./SectionHead.astro";
+
 interface Props {
   lang: Locale;
 }
+
 const project = featuredWork.copy[Astro.props.lang];
 const t = translations[Astro.props.lang].work;
 ---
 
-<section id="work" class="wrap work" aria-labelledby="work-heading">
-  <h2 id="work-heading" class="display">{t.heading}</h2>
-  <article>
-    {
-      featuredWork.image ? (
-        <img class="product-image" src={featuredWork.image} alt={project.imageAlt ?? ""} loading="lazy" />
-      ) : (
-        <div class="preview" aria-hidden="true">
-          <div class="sheets">
-            <>
-              <i />
-              <i />
-              <i />
-            </>
-          </div>
-        </div>
-      )
-    }
-    <div class="copy">
-      <h3>{project.title}</h3>
-      <p class="lede">{project.description}</p>
+<section id="work" class="py-24 md:py-36">
+  <div class="wrap">
+    <SectionHead n={1} eyebrow={t.eyebrow} heading={t.heading} />
+
+    <article class="mt-14 md:mt-20" data-reveal>
       {
-        featuredWork.url && (
-          <a class="btn mt-5" href={featuredWork.url}>
-            {t.open}
-            <Arrow dir="out" />
-          </a>
+        featuredWork.image ? (
+          <img class="figure" src={featuredWork.image} alt={project.imageAlt ?? ""} loading="lazy" />
+        ) : (
+          // Until there is a screenshot: a stack of drawing sheets on the paper grid.
+          <div class="figure preview" aria-hidden="true">
+            <div class="sheets">
+              <i />
+              <i />
+              <i />
+            </div>
+          </div>
         )
       }
-    </div>
-  </article>
+      <div class="copy">
+        <h3>{project.title}</h3>
+        <p class="lede mt-4">{project.description}</p>
+        {
+          featuredWork.url && (
+            <a class="btn mt-8" href={featuredWork.url}>
+              {t.open}
+              <Arrow dir="out" />
+            </a>
+          )
+        }
+      </div>
+    </article>
+  </div>
 </section>
+
 <style>
-  .work {
-    padding-block: clamp(3.5rem, 6vw, 6.5rem);
-  }
   article {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    margin-top: 2rem;
-    border: 1px solid var(--color-line);
-    border-radius: 1rem;
-    overflow: hidden;
-    background: #edeee5;
+    border-block: 1px solid var(--color-line);
   }
-  .product-image {
+  .figure {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: #dbe4ce;
+    border-bottom: 1px solid var(--color-line);
   }
   .preview {
-    min-height: 16rem;
+    min-height: 13rem;
     display: grid;
     place-items: center;
     overflow: hidden;
-    background-color: #dbe4ce;
     background-image:
-      linear-gradient(#49674313 1px, transparent 1px), linear-gradient(90deg, #49674313 1px, transparent 1px);
+      linear-gradient(var(--color-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
     background-size: 2rem 2rem;
+    background-position: center;
   }
   .sheets {
     position: relative;
@@ -79,34 +78,44 @@ const t = translations[Astro.props.lang].work;
   i {
     position: absolute;
     inset: 0;
-    border: 1px solid #435e44;
-    border-radius: 0.55rem;
-    background: #56765d;
+    border: 1px solid var(--color-ink);
+    background: var(--color-surface);
     transform: translate(-1.5rem, 2.5rem);
   }
   i:nth-child(2) {
-    background: #91ab84;
     transform: translate(-0.75rem, 1.25rem);
   }
   i:last-child {
     transform: none;
-    background: repeating-linear-gradient(90deg, transparent 0 12px, #48654755 12px 13px), #d1e5a9;
+    border-color: var(--color-redline);
+    background:
+      repeating-linear-gradient(90deg, transparent 0 12px, var(--color-line) 12px 13px), var(--color-surface);
   }
   .copy {
     align-self: center;
-    padding: clamp(1.5rem, 4vw, 4rem);
+    padding-block: 2rem;
   }
   h3 {
-    font-size: clamp(1.9rem, 3vw, 3.3rem);
-    letter-spacing: -0.06em;
-    margin-bottom: 0.75rem;
+    font-size: clamp(1.75rem, 3.3vw, 3rem);
+    line-height: 1.04;
+    font-weight: 540;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
   }
-  @media (max-width: 700px) {
+
+  @media (min-width: 768px) {
     article {
-      grid-template-columns: 1fr;
+      grid-template-columns: 7fr 5fr;
+    }
+    .figure {
+      border-bottom: 0;
+      border-right: 1px solid var(--color-line);
     }
     .preview {
-      min-height: 13rem;
+      min-height: 18rem;
+    }
+    .copy {
+      padding: 3rem clamp(2rem, 4vw, 4rem);
     }
   }
 </style>

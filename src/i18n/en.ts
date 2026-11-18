@@ -35,9 +35,7 @@ export const en = {
     hint: "Drag to turn the model"
   },
   trusted: {
-    eyebrow: "Clients",
     heading: "Trusted by",
-    body: "We are proud to have helped implement solutions for leading companies across various sectors.",
     visit: "Visit website",
     sectors: {
       sokaBau: "Social fund · Insurance",
@@ -49,6 +47,7 @@ export const en = {
     }
   },
   work: {
+    eyebrow: "Work",
     heading: "Featured work",
     open: "View project"
   },

@@ -33,9 +33,7 @@ export const de: Translations = {
     hint: "Ziehen, um das Modell zu drehen"
   },
   trusted: {
-    eyebrow: "Kunden",
     heading: "Uns vertrauen",
-    body: "Wir sind stolz darauf, Lösungen für führende Unternehmen in verschiedenen Branchen umgesetzt zu haben.",
     visit: "Website besuchen",
     sectors: {
       sokaBau: "Sozialkasse · Versicherung",
@@ -47,6 +45,7 @@ export const de: Translations = {
     }
   },
   work: {
+    eyebrow: "Projekte",
     heading: "Ausgewählte Projekte",
     open: "Projekt ansehen"
   },
